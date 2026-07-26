@@ -1,0 +1,54 @@
+########################################################################################################################
+#
+# ░█████╗░███╗░░██╗██╗░░░░░██╗███╗░░██╗███████╗  ██████╗░███████╗░██╗░░░░░░░██╗░█████╗░██████╗░██████╗░░██████╗
+# ██╔══██╗████╗░██║██║░░░░░██║████╗░██║██╔════╝  ██╔══██╗██╔════╝░██║░░██╗░░██║██╔══██╗██╔══██╗██╔══██╗██╔════╝
+# ██║░░██║██╔██╗██║██║░░░░░██║██╔██╗██║█████╗░░  ██████╔╝█████╗░░░╚██╗████╗██╔╝███████║██████╔╝██║░░██║╚█████╗░
+# ██║░░██║██║╚████║██║░░░░░██║██║╚████║██╔══╝░░  ██╔══██╗██╔══╝░░░░████╔═████║░██╔══██║██╔══██╗██║░░██║░╚═══██╗
+# ╚█████╔╝██║░╚███║███████╗██║██║░╚███║███████╗  ██║░░██║███████╗░░╚██╔╝░╚██╔╝░██║░░██║██║░░██║██████╔╝██████╔╝
+# ░╚════╝░╚═╝░░╚══╝╚══════╝╚═╝╚═╝░░╚══╝╚══════╝  ╚═╝░░╚═╝╚══════╝░░░╚═╝░░░╚═╝░░╚═╝░░╚═╝╚═╝░░╚═╝╚═════╝░╚═════╝
+#
+# Online rewards: when the number of connected players (staff excluded) reaches a milestone and stays
+# there for the configured duration, console commands are executed for EVERY connected player.
+#
+# How it works:
+#   1. When the non-staff player count reaches a milestone, a countdown starts (duration-seconds).
+#   2. If reset-on-quit is true, ANY disconnection of a counted player cancels the countdown.
+#      It restarts immediately (full duration) if the milestone is still reached.
+#   3. Once the countdown ends, the commands of the milestone are executed for each online player.
+#   4. If reset-when-below is true, a validated milestone can be earned again once the player count
+#      drops below it and reaches it again.
+#
+# Command placeholders: %player% (each online player), %players% (the milestone player count)
+#
+########################################################################################################################
+
+enable: true
+
+# Duration in seconds the milestone must be held before the rewards are given (600 = 10 minutes)
+duration-seconds: 600
+
+# Players with this permission are NOT counted towards the milestones (they still receive the rewards).
+# Set to "" to count everyone.
+staff-permission: "essentials.online.rewards.staff"
+
+# If true, any disconnection of a counted player during the countdown cancels it and restarts it from zero
+reset-on-quit: true
+
+# If true, a validated milestone can be validated again after the player count drops below it
+reset-when-below: true
+
+# The higher the milestone, the better the rewards should be!
+milestones:
+
+  - players: 35
+    commands:
+      - "eco give etoiles %player% 2"
+
+  - players: 50
+    commands:
+      - "eco give etoiles %player% 4"
+
+  - players: 75
+    commands:
+      - "eco give etoiles %player% 6"
+      - "give %player% diamond 3"

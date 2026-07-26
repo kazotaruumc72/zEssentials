@@ -1,0 +1,34 @@
+########################################################################################################################
+#
+# ███████╗░█████╗░░█████╗░███╗░░██╗░█████╗░███╗░░░███╗██╗░░░██╗
+# ██╔════╝██╔══██╗██╔══██╗████╗░██║██╔══██╗████╗░████║╚██╗░██╔╝
+# █████╗░░██║░░╚═╝██║░░██║██╔██╗██║██║░░██║██╔████╔██║░╚████╔╝░
+# ██╔══╝░░██║░░██╗██║░░██║██║╚████║██║░░██║██║╚██╔╝██║░░╚██╔╝░░
+# ███████╗╚█████╔╝╚█████╔╝██║░╚███║╚█████╔╝██║░╚═╝░██║░░░██║░░░
+# ╚══════╝░░╚════╝░░╚════╝░╚═╝░░╚══╝░╚════╝░╚═╝░░░░░╚═╝░░░╚═╝░░░
+#
+# Welcome module: when a player joins the server for the first time, other players have a limited time
+# to run /bvn (aliases: /bienvenue, /welcome) to welcome them. The player who runs the command receives
+# money, console commands are executed and a welcome message targeting the new player is broadcast.
+#
+########################################################################################################################
+
+enable: true
+
+# Time in seconds players have to run /bvn after a new player joined for the first time
+duration-seconds: 60
+
+# Economy given to the player who welcomes the new player
+reward-economy: "money"
+
+# Amount given to the player who welcomes the new player
+reward-amount: 100
+
+# Reason stored in the transactions history, %target% is the new player
+reward-reason: "Welcome reward for %target%"
+
+# Console commands executed when a player welcomes the new player
+# %player% is the player who ran /bvn, %target% is the new player
+console-commands: []
+#  - "give %player% diamond 1"
+#  - "say %player% a souhaité la bienvenue à %target% !"

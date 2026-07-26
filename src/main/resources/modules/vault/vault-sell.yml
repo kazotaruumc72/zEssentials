@@ -1,0 +1,40 @@
+name: "&8Sell from vaults"
+size: 54
+items:
+
+  # One toggle per vault holding the clicked item (special render, slots 0-44)
+  selection:
+    isPermanent: true
+    type: ZESSENTIALS_VAULT_SELL_SELECTION
+    slots:
+      - 0-44
+
+  # Decorative separator on the last row
+  separator:
+    isPermanent: true
+    slots:
+      - 45-53
+    item:
+      material: GRAY_STAINED_GLASS_PANE
+      name: " "
+
+  confirm:
+    type: ZESSENTIALS_VAULT_SELL_CONFIRM
+    slot: 49
+    item:
+      material: LIME_DYE
+      name: "<green>✔ Sell selected vaults"
+      lore:
+        - ""
+        - "<gray>Left click to sell the selected vaults"
+        - "<gray>in the sell menu."
+
+  cancel:
+    slot: 53
+    closeInventory: true
+    item:
+      material: BARRIER
+      name: "<red>✘ Cancel"
+      lore:
+        - ""
+        - "<gray>Close without selling."

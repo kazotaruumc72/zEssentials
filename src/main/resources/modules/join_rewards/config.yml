@@ -1,0 +1,70 @@
+########################################################################################################################
+#
+# ░░░░░██╗░█████╗░██╗███╗░░██╗  ██████╗░███████╗░██╗░░░░░░░██╗░█████╗░██████╗░██████╗░░██████╗
+# ░░░░░██║██╔══██╗██║████╗░██║  ██╔══██╗██╔════╝░██║░░██╗░░██║██╔══██╗██╔══██╗██╔══██╗██╔════╝
+# ░░░░░██║██║░░██║██║██╔██╗██║  ██████╔╝█████╗░░░╚██╗████╗██╔╝███████║██████╔╝██║░░██║╚█████╗░
+# ██╗░░██║██║░░██║██║██║╚████║  ██╔══██╗██╔══╝░░░░████╔═████║░██╔══██║██╔══██╗██║░░██║░╚═══██╗
+# ╚█████╔╝╚█████╔╝██║██║░╚███║  ██║░░██║███████╗░░╚██╔╝░╚██╔╝░██║░░██║██║░░██║██████╔╝██████╔╝
+# ░╚════╝░░╚════╝░╚═╝╚═╝░░╚══╝  ╚═╝░░╚═╝╚══════╝░░░╚═╝░░░╚═╝░░╚═╝░░╚═╝╚═╝░░╚═╝╚═════╝░╚═════╝
+#
+# Documentation: https://zessentials.groupez.dev/modules/join-rewards
+#
+########################################################################################################################
+
+enable: true
+
+# Milestones triggered when a player joins for the first time.
+# Each milestone fires when the total registered player count reaches the configured number.
+#
+# Per milestone you can configure two independent reward types:
+#   winner-actions   - Rewards given ONLY to the X-th player who triggered the milestone.
+#   all-players-actions - Rewards given to EVERY player currently online when the milestone is hit.
+#
+# Action types follow the zMenu action format (console_command, player_command, message, etc.)
+# Use %player% in commands to target the recipient, %count% for the milestone number.
+#
+milestones:
+
+  # ── Milestone: 100th player ──────────────────────────────────────────────────
+  - players: 100
+
+    # Reward for the 100th player only
+    winner-actions:
+      - type: console_command
+        commands:
+          - "eco give money %player% 10000"
+          - "give %player% diamond 10"
+
+    # Reward for all players online at that moment
+    all-players-actions:
+      - type: console_command
+        commands:
+          - "eco give money %player% 500"
+
+  # ── Milestone: 500th player ──────────────────────────────────────────────────
+  - players: 500
+
+    winner-actions:
+      - type: console_command
+        commands:
+          - "eco give money %player% 50000"
+          - "give %player% netherite_ingot 5"
+
+    all-players-actions:
+      - type: console_command
+        commands:
+          - "eco give money %player% 2000"
+
+  # ── Milestone: 1000th player ─────────────────────────────────────────────────
+  - players: 1000
+
+    winner-actions:
+      - type: console_command
+        commands:
+          - "eco give money %player% 100000"
+          - "give %player% netherite_block 1"
+
+    all-players-actions:
+      - type: console_command
+        commands:
+          - "eco give money %player% 5000"

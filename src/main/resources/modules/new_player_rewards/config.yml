@@ -1,0 +1,47 @@
+########################################################################################################################
+#
+# ███╗░░██╗███████╗░██╗░░░░░░░██╗  ██████╗░██╗░░░░░░█████╗░██╗░░░██╗███████╗██████╗░
+# ████╗░██║██╔════╝░██║░░██╗░░██║  ██╔══██╗██║░░░░░██╔══██╗╚██╗░██╔╝██╔════╝██╔══██╗
+# ██╔██╗██║█████╗░░░╚██╗████╗██╔╝  ██████╔╝██║░░░░░███████║░╚████╔╝░█████╗░░██████╔╝
+# ██║╚████║██╔══╝░░░░████╔═████║░  ██╔═══╝░██║░░░░░██╔══██║░░╚██╔╝░░██╔══╝░░██╔══██╗
+# ██║░╚███║███████╗░░╚██╔╝░╚██╔╝░  ██║░░░░░███████╗██║░░██║░░░██║░░░███████╗██║░░██║
+# ╚═╝░░╚══╝╚══════╝░░░╚═╝░░░╚═╝░░  ╚═╝░░░░░╚══════╝╚═╝░░╚═╝░░░╚═╝░░░╚══════╝╚═╝░░╚═╝
+#
+# New player rewards: every player joining the server for the FIRST time receives a reward based on
+# their rank (the total number of registered players at the time they join).
+#
+# Tiers are cumulative ranges based on "until":
+#   - until: 10  -> players #1 to #10
+#   - until: 20  -> players #11 to #20
+#   - until: 50  -> players #21 to #50
+# Add as many tiers as you want. A new player outside of every tier receives nothing.
+#
+# Per tier:
+#   economy  - Name of the zEssentials economy given to the new player (optional)
+#   amount   - Amount of that economy given to the new player
+#   commands - Console commands executed for the new player (optional)
+#              Placeholders: %player% (new player name), %rank% (their rank)
+#
+########################################################################################################################
+
+enable: true
+
+tiers:
+
+  # Players #1 to #10 receive 4 stars
+  - until: 10
+    economy: "etoiles"
+    amount: 4
+
+  # Players #11 to #20 receive 2 stars
+  - until: 20
+    economy: "etoiles"
+    amount: 2
+
+  # Players #21 to #50 receive 1 star
+  - until: 50
+    economy: "etoiles"
+    amount: 1
+    # You can also run console commands, for example:
+    # commands:
+    #   - "give %player% diamond 1"

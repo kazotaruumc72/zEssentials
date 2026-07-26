@@ -1,0 +1,44 @@
+name: zEssentials
+version: ${version}
+main: fr.maxlego08.essentials.ZEssentialsPlugin
+folia-supported: true
+description: Provides an essential, core set of commands for Bukkit.
+website: https://groupez.dev/
+authors: [ Maxlego08 ]
+contributors: [ Louis_Dew, Traqueur, JavaToastDev, Melon-Oof, alwyn974, Mapacheee, NeiiZun, groundbreakingmc ]
+api-version: '26.1'
+load: POSTWORLD
+
+dependencies:
+  server:
+    zMenu:
+      load: BEFORE
+      required: true
+      join-classpath: true
+    PlaceholderAPI:
+      load: BEFORE
+      required: true
+      join-classpath: true
+    Vault:
+      load: BEFORE
+      required: false
+      join-classpath: true
+    LuckPerms:
+      load: BEFORE
+      required: false
+      join-classpath: true
+    ProtocolLib:
+      load: BEFORE
+      required: false
+      join-classpath: true
+    SuperiorSkyblock2:
+      load: BEFORE
+      required: false
+      join-classpath: true
+    BentoBox:
+      load: BEFORE
+      required: false
+      join-classpath: true
+
+libraries:
+  - 'org.mariadb.jdbc:mariadb-java-client:3.5.6'
