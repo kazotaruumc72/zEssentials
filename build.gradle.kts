@@ -1,12 +1,12 @@
 plugins {
     `java-library`
-    id("com.gradleup.shadow") version "9.0.0-beta11"
-    id("io.papermc.paperweight.userdev") version "2.0.0-beta.19" apply false
+    id("com.gradleup.shadow") version "9.4.1"
+    id("io.papermc.paperweight.userdev") version "2.0.0-beta.21" apply false
     id("re.alwyn974.groupez.repository") version "1.0.0"
 }
 
 group = "fr.maxlego08.essentials"
-version = "1.0.3.7"
+version = "1.1.0.0"
 
 extra.set("targetFolder", file("target/"))
 extra.set("targetFolderDiscord", file("target-discord/"))
@@ -67,7 +67,7 @@ allprojects {
 
     dependencies {
 //        compileOnly("fr.maxlego08.menu:zmenu-api:1.1.0.0")
-        compileOnly(files("libs/zMenu-1.1.1.2.jar"))
+        compileOnly(files("libs/zMenu-1.1.1.5.jar"))
 
         compileOnly("fr.maxlego08.sarah:sarah:1.23")
         compileOnly("com.tcoded:FoliaLib:0.5.1")
@@ -75,25 +75,19 @@ allprojects {
     }
 }
 
+tasks.compileJava {
+    options.release = 25
+}
+
 dependencies {
     compileOnly("me.clip:placeholderapi:2.11.6")
-    compileOnly("io.papermc.paper:paper-api:1.21.5-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:26.1.2.build.66-stable")
+    compileOnly("net.luckperms:api:5.4")
 
     api(project(":API"))
 
-    api(project(":NMS:V1_20_4", configuration = "reobf"))
-    api(project(":NMS:V1_20_6", configuration = "reobf"))
-    api(project(":NMS:V1_21", configuration = "reobf"))
-    api(project(":NMS:V1_21_1", configuration = "reobf"))
-    api(project(":NMS:V1_21_3", configuration = "reobf"))
-    api(project(":NMS:V1_21_4", configuration = "reobf"))
-    api(project(":NMS:V1_21_5", configuration = "reobf"))
-    api(project(":NMS:V1_21_6", configuration = "reobf"))
-    api(project(":NMS:V1_21_7", configuration = "reobf"))
-    api(project(":NMS:V1_21_8", configuration = "reobf"))
-    api(project(":NMS:V1_21_9", configuration = "reobf"))
-    api(project(":NMS:V1_21_10", configuration = "reobf"))
-    api(project(":NMS:V1_21_11", configuration = "reobf"))
+    api(project(":NMS:V26_1_2", configuration = "shadow"))
+    api(project(":NMS:V26_2", configuration = "shadow"))
 
     rootProject.subprojects.filter { it.path.startsWith(":Hooks:") }.forEach { subproject ->
         api(project(subproject.path))
@@ -106,8 +100,10 @@ tasks {
         relocate("fr.maxlego08.sarah", "fr.maxlego08.essentials.libs.sarah")
         relocate("fr.mrmicky.fastboard", "fr.maxlego08.essentials.libs.fastboard")
 
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
         manifest {
-            attributes["paperweight-mappings-namespace"] = "spigot"
+            attributes["paperweight-mappings-namespace"] = "mojang"
         }
 
         rootProject.extra.properties["sha"]?.let { sha ->
@@ -123,8 +119,9 @@ tasks {
     }
 
     processResources {
+        inputs.property("version", project.version)
         from("resources")
-        filesMatching("plugin.yml") {
+        filesMatching(listOf("plugin.yml", "paper-plugin.yml")) {
             expand("version" to project.version)
         }
     }

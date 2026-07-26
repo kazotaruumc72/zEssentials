@@ -75,7 +75,6 @@ import fr.maxlego08.essentials.commands.commands.teleport.CommandTeleportBack;
 import fr.maxlego08.essentials.commands.commands.teleport.CommandTeleportCancel;
 import fr.maxlego08.essentials.commands.commands.teleport.CommandTeleportDeny;
 import fr.maxlego08.essentials.commands.commands.teleport.CommandTeleportHere;
-import fr.maxlego08.essentials.commands.commands.teleport.random.CommandTeleportRandom;
 import fr.maxlego08.essentials.commands.commands.teleport.CommandTeleportTo;
 import fr.maxlego08.essentials.commands.commands.teleport.CommandTeleportToHere;
 import fr.maxlego08.essentials.commands.commands.teleport.CommandTeleportWorld;
@@ -179,6 +178,7 @@ public class CommandLoader {
         register("furnace", CommandFurnace.class, "burn");
         register("skull", CommandSkull.class);
         register("rules", CommandRules.class, "?", "help", "aide");
+        register("bvn", CommandWelcome.class, "bienvenue", "welcome");
 
         register("tp", CommandTeleport.class);
         register("tpall", CommandTeleportAll.class);
@@ -189,7 +189,6 @@ public class CommandLoader {
         register("tpdeny", CommandTeleportDeny.class, "tpno");
         register("tpacancel", CommandTeleportCancel.class);
         register("back", CommandTeleportBack.class);
-        register("tpr", CommandTeleportRandom.class, "rtp");
 
         register("balancetop", CommandBalanceTop.class, "baltop");
         register("economy", CommandEconomy.class, "eco");
@@ -276,7 +275,7 @@ public class CommandLoader {
 
         register("voteparty", CommandVoteParty.class, "vp");
         register("vote", CommandVote.class);
-        register("vault", CommandVault.class, "sac", "bag", "b", "coffre", "chest");
+        register("vault", CommandVault.class, "sac", "bag", "b", "coffre", "chest", "pv");
         register("player-worldedit", CommandWorldEdit.class, "pwe", "ess-worldedit", "eworldedit", "ew");
 
         register("suicide", CommandSuicide.class);

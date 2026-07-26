@@ -120,6 +120,37 @@ chat-formats:
     permission: "essentials.chat.format.admin"
     format: "<#ffffff><hover:show_text:'#ffd353ℹ Informations#3f3f3f:<newline>#3f3f3f• &7Money#3f3f3f: #4cd5ff%zessentials_user_formatted_balance_money%<newline>#3f3f3f• &7Coins#3f3f3f: #4cd5ff%zessentials_user_formatted_balance_coins%<newline><newline>&f➥ &7Click for more information'>%player%</hover> <#333333>» <#ff4444><click:suggest_command:'/msg %player% '><hover:show_text:'&fSend a private message'><message></hover></click>"
 
+# LuckPerms integration
+# Requires LuckPerms to be installed on the server
+enable-luckperms: true
+
+# Format per LuckPerms primary group. Takes priority over chat-formats (permission-based).
+# Available placeholders in format strings:
+#   %lp_prefix%      - Player's LuckPerms prefix (resolved natively, no PAPI extension needed)
+#   %lp_suffix%      - Player's LuckPerms suffix
+#   %lp_group%       - Player's primary group name
+#   %player%         - Player's name
+#   %displayName%    - Player's display name
+#   <message>        - Player's message
+#   %moderator_action% - Moderator button (visible only with essentials.chat.moderator permission)
+#   + any PlaceholderAPI placeholder
+luckperms-group-formats:
+  - priority: 100
+    group: "owner"
+    format: "%lp_prefix% %moderator_action%<#ff4444><hover:show_text:'<red>Owner'><click:suggest_command:'/msg %player% '>%player%</click></hover><reset> <#444444>» <#ff4444><message>%lp_suffix%"
+  - priority: 90
+    group: "admin"
+    format: "%lp_prefix% %moderator_action%<#ff8800><hover:show_text:'<gold>Admin'><click:suggest_command:'/msg %player% '>%player%</click></hover><reset> <#444444>» <#ffcc44><message>%lp_suffix%"
+  - priority: 80
+    group: "moderator"
+    format: "%lp_prefix% %moderator_action%<#44aaff><hover:show_text:'<aqua>Moderator'><click:suggest_command:'/msg %player% '>%player%</click></hover><reset> <#444444>» <#aaddff><message>%lp_suffix%"
+  - priority: 50
+    group: "vip"
+    format: "%lp_prefix% <#ffd700><hover:show_text:'<yellow>VIP'><click:suggest_command:'/msg %player% '>%player%</click></hover><reset> <#444444>» <#ffffaa><message>%lp_suffix%"
+  - priority: 1
+    group: "default"
+    format: "%lp_prefix% <#ffffff><hover:show_text:'<gray>Player'><click:suggest_command:'/msg %player% '>%player%</click></hover> <#444444>» <gray><message>%lp_suffix%"
+
 # Default chat format
 default-chat-format: "<hover:show_text:'&cReport this message'><click:run_command:'/report %player% chat'><#ff0000>⚠</click></hover> %moderator_action%<#ffffff><hover:show_text:'#ffd353ℹ Informations#3f3f3f:<newline>#3f3f3f• &7Money#3f3f3f: #4cd5ff%zessentials_user_formatted_balance_money%<newline>#3f3f3f• &7Coins#3f3f3f: #4cd5ff%zessentials_user_formatted_balance_coins%<newline><newline>&f➥ &7Click for more information'>%player%</hover> <#333333>» <gray><click:suggest_command:'/msg %player% '><hover:show_text:'&fSend a private message'><message></hover></click>"
 

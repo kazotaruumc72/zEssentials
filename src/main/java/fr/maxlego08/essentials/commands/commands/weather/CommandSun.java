@@ -26,9 +26,11 @@ public class CommandSun extends VCommand {
         World world = this.argAsWorld(0, isPlayer() ? this.player.getWorld() : null);
         if (world == null) return CommandResultType.SYNTAX_ERROR;
 
-        world.setStorm(false);
-        world.setThunderDuration(0);
-        world.setThundering(false);
+        plugin.getScheduler().runNextTick(wrappedTask -> {
+            world.setStorm(false);
+            world.setThunderDuration(0);
+            world.setThundering(false);
+        });
 
         message(this.sender, Message.COMMAND_SUN, "%world%", world.getName());
 

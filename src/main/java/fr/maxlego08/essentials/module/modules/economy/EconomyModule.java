@@ -16,6 +16,7 @@ import fr.maxlego08.essentials.api.economy.OfflineEconomy;
 import fr.maxlego08.essentials.api.economy.PriceFormat;
 import fr.maxlego08.essentials.api.economy.UserBaltop;
 import fr.maxlego08.essentials.api.event.events.economy.EconomyBaltopUpdateEvent;
+import fr.maxlego08.essentials.api.event.events.user.UserEconomyUpdateEvent;
 import fr.maxlego08.essentials.api.event.events.user.UserFirstJoinEvent;
 import fr.maxlego08.essentials.api.event.events.user.UserJoinEvent;
 import fr.maxlego08.essentials.api.event.events.user.UserQuitEvent;
@@ -29,6 +30,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -41,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -49,12 +52,16 @@ public class EconomyModule extends ZModule implements EconomyManager {
     @NonLoadable
     public static final String NO_REASON = "No reason";
     @NonLoadable
+    private static final String[] DYNAMIC_BALANCE_SUFFIXES = {"", "K", "M", "B", "T", "Q"};
+    @NonLoadable
     private final List<Economy> economies = new ArrayList<>();
     private final List<NumberMultiplicationFormat> numberFormatSellMultiplication = new ArrayList<>();
     private final Map<Economy, Baltop> baltops = new HashMap<>();
     private final Map<UUID, OfflineEconomy> offlinePlayers = new HashMap<>();
     private final List<DefaultEconomyConfiguration> defaultEconomies = new ArrayList<>();
     private final Map<UUID, List<Consumer<User>>> userRequestQueue = new HashMap<>();
+    @NonLoadable
+    private final Map<UUID, Map<String, BalanceAnimation>> balanceAnimations = new ConcurrentHashMap<>();
     private String defaultEconomy;
     private BigDecimal minimumPayAmount;
     private PriceFormat priceFormat;
@@ -76,6 +83,15 @@ public class EconomyModule extends ZModule implements EconomyManager {
     private String commandSetReason;
     private String paytogglePlaceholderEnabled;
     private String paytogglePlaceholderDisabled;
+    private boolean dynamicBalanceEnabled;
+    private boolean dynamicBalanceAutoFormat;
+    private long dynamicBalanceInactivityMilliseconds;
+    private long dynamicBalanceDeltaMilliseconds;
+    private long dynamicBalanceScrollMilliseconds;
+    private String dynamicBalanceGainFormat;
+    private String dynamicBalanceLossFormat;
+    private String dynamicBalanceScrollGainFormat;
+    private String dynamicBalanceScrollLossFormat;
     private int baltopMessageAmount;
     private BaltopDisplay baltopDisplay;
     private WrappedTask baltopTask;
@@ -90,6 +106,7 @@ public class EconomyModule extends ZModule implements EconomyManager {
 
         this.economies.clear();
         this.baltops.clear();
+        this.balanceAnimations.clear();
 
         YamlConfiguration configuration = getConfiguration();
         var mapList = configuration.getMapList("economies");
@@ -480,6 +497,113 @@ public class EconomyModule extends ZModule implements EconomyManager {
         User user = event.getUser();
         OfflineEconomy offlineEconomy = new ZOfflineEconomy(user.getBalances());
         this.offlinePlayers.put(user.getUniqueId(), offlineEconomy);
+        this.balanceAnimations.remove(user.getUniqueId());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onEconomyUpdate(UserEconomyUpdateEvent event) {
+        if (!this.dynamicBalanceEnabled) return;
+
+        User user = event.getUser();
+        Economy economy = event.getEconomy();
+        // The event is fired before the balance is applied, so this is the balance the player had before the change
+        BigDecimal currentBalance = user.getBalance(economy);
+        long now = System.currentTimeMillis();
+
+        Map<String, BalanceAnimation> animations = this.balanceAnimations.computeIfAbsent(user.getUniqueId(), uuid -> new ConcurrentHashMap<>());
+        BalanceAnimation animation = animations.get(economy.getName());
+
+        // Freeze the value currently displayed, so a change during the animation never makes the number jump
+        BigDecimal startBalance = animation == null ? currentBalance : getDisplayedBalance(animation, currentBalance, now);
+        animations.put(economy.getName(), new BalanceAnimation(startBalance, now));
+    }
+
+    /**
+     * Returns the balance currently displayed by the placeholder for the given animation state.
+     */
+    private BigDecimal getDisplayedBalance(BalanceAnimation animation, BigDecimal balance, long now) {
+        long elapsed = now - animation.lastChangeAt();
+        long animationTime = elapsed - this.dynamicBalanceInactivityMilliseconds;
+
+        if (animationTime < this.dynamicBalanceDeltaMilliseconds) return animation.startBalance();
+        if (animationTime >= this.dynamicBalanceDeltaMilliseconds + this.dynamicBalanceScrollMilliseconds) return balance;
+
+        double progress = (animationTime - this.dynamicBalanceDeltaMilliseconds) / (double) this.dynamicBalanceScrollMilliseconds;
+        return interpolate(animation.startBalance(), balance.subtract(animation.startBalance()), progress);
+    }
+
+    /**
+     * Interpolates linearly between the start balance and the final balance.
+     * Values are rounded toward the start balance, so successive calls always
+     * scroll in order and never overshoot the final balance.
+     */
+    private BigDecimal interpolate(BigDecimal start, BigDecimal delta, double progress) {
+        BigDecimal value = start.add(delta.multiply(BigDecimal.valueOf(progress)));
+        int scale = Math.max(start.stripTrailingZeros().scale(), start.add(delta).stripTrailingZeros().scale());
+        scale = Math.max(0, Math.min(scale, 2));
+        return value.setScale(scale, delta.signum() > 0 ? RoundingMode.FLOOR : RoundingMode.CEILING);
+    }
+
+    /**
+     * Formats a number displayed by the balance placeholder: decimals are rounded (27.72 -> 28)
+     * and large numbers are reduced (10037.40 -> 10K, 1550000 -> 1.6M).
+     * The rounding is monotonic, so the scrolling numbers always stay in order.
+     */
+    private String formatDynamicBalance(BigDecimal value) {
+        if (!this.dynamicBalanceAutoFormat) return value.toPlainString();
+
+        BigDecimal thousand = BigDecimal.valueOf(1000);
+        BigDecimal divisor = BigDecimal.ONE;
+        int index = 0;
+        while (index < DYNAMIC_BALANCE_SUFFIXES.length - 1 && value.abs().compareTo(divisor.multiply(thousand)) >= 0) {
+            divisor = divisor.multiply(thousand);
+            index++;
+        }
+
+        if (index == 0) return value.setScale(0, RoundingMode.HALF_UP).toPlainString();
+
+        BigDecimal reduced = value.divide(divisor, 1, RoundingMode.HALF_UP);
+        return reduced.stripTrailingZeros().toPlainString() + DYNAMIC_BALANCE_SUFFIXES[index];
+    }
+
+    @Override
+    public String getBalancePlaceholder(User user, Economy economy) {
+        BigDecimal balance = user.getBalance(economy);
+        if (!this.dynamicBalanceEnabled) return formatDynamicBalance(balance);
+
+        Map<String, BalanceAnimation> animations = this.balanceAnimations.get(user.getUniqueId());
+        if (animations == null) return formatDynamicBalance(balance);
+
+        BalanceAnimation animation = animations.get(economy.getName());
+        if (animation == null) return formatDynamicBalance(balance);
+
+        long now = System.currentTimeMillis();
+        long elapsed = now - animation.lastChangeAt();
+
+        // The player is still chaining money changes, keep the balance he had before the first change
+        if (elapsed < this.dynamicBalanceInactivityMilliseconds) return formatDynamicBalance(animation.startBalance());
+
+        BigDecimal delta = balance.subtract(animation.startBalance());
+        if (delta.signum() == 0) {
+            animations.remove(economy.getName());
+            return formatDynamicBalance(balance);
+        }
+
+        long animationTime = elapsed - this.dynamicBalanceInactivityMilliseconds;
+
+        if (animationTime < this.dynamicBalanceDeltaMilliseconds) {
+            String format = delta.signum() > 0 ? this.dynamicBalanceGainFormat : this.dynamicBalanceLossFormat;
+            return format.replace("%amount%", formatDynamicBalance(delta.abs()));
+        }
+
+        if (animationTime < this.dynamicBalanceDeltaMilliseconds + this.dynamicBalanceScrollMilliseconds) {
+            double progress = (animationTime - this.dynamicBalanceDeltaMilliseconds) / (double) this.dynamicBalanceScrollMilliseconds;
+            String format = delta.signum() > 0 ? this.dynamicBalanceScrollGainFormat : this.dynamicBalanceScrollLossFormat;
+            return format.replace("%amount%", formatDynamicBalance(interpolate(animation.startBalance(), delta, progress)));
+        }
+
+        animations.remove(economy.getName());
+        return formatDynamicBalance(balance);
     }
 
     @EventHandler

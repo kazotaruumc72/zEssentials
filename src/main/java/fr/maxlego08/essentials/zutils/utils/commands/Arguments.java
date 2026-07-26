@@ -2,6 +2,7 @@ package fr.maxlego08.essentials.zutils.utils.commands;
 
 import fr.maxlego08.essentials.zutils.utils.ZUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
@@ -232,7 +233,9 @@ public abstract class Arguments extends ZUtils {
      */
     protected World argAsWorld(int index) {
         try {
-            return Bukkit.getWorld(argAsString(index));
+            String worldName = argAsString(index);
+            if (worldName == null) return null;
+            return findWorld(worldName);
         } catch (Exception ignored) {
             return null;
         }
@@ -247,10 +250,29 @@ public abstract class Arguments extends ZUtils {
      */
     protected World argAsWorld(int index, World defaultValue) {
         try {
-            return Bukkit.getWorld(argAsString(index));
+            String worldName = argAsString(index);
+            if (worldName == null) return defaultValue;
+            return findWorld(worldName);
         } catch (Exception ignored) {
             return defaultValue;
         }
+    }
+
+    private World findWorld(String name) {
+        // Direct name lookup
+        World world = Bukkit.getWorld(name);
+        if (world != null) return world;
+        // Key lookup (e.g. "minecraft:overworld")
+        NamespacedKey key = NamespacedKey.fromString(name);
+        if (key != null) {
+            world = Bukkit.getWorld(key);
+            if (world != null) return world;
+        }
+        // Case-insensitive fallback (world names and keys)
+        return Bukkit.getWorlds().stream()
+                .filter(w -> w.getName().equalsIgnoreCase(name) || w.getKey().asString().equalsIgnoreCase(name) || w.getKey().getKey().equalsIgnoreCase(name))
+                .findFirst()
+                .orElse(null);
     }
 
     protected Duration argAsDuration(int index) {

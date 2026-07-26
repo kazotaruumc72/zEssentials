@@ -15,6 +15,7 @@ import fr.maxlego08.essentials.zutils.utils.TimerBuilder;
 import fr.maxlego08.essentials.zutils.utils.ZUtils;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -74,8 +75,8 @@ public class UserPlaceholders extends ZUtils implements PlaceholderRegister {
                 return "Economy " + args + " was not found";
             }
             Economy economy = optional.get();
-            return user.getBalance(economy).toString();
-        }, "Returns the number for a given economy", "economy");
+            return economyManager.getBalancePlaceholder(user, economy);
+        }, "Returns the number for a given economy, with the gain/loss and scrolling animation when the balance changes", "economy");
 
         placeholder.register("user_custom_balance_", (player, args) -> {
             User user = iStorage.getUser(player.getUniqueId());
@@ -219,6 +220,15 @@ public class UserPlaceholders extends ZUtils implements PlaceholderRegister {
             User user = iStorage.getUser(player.getUniqueId());
             return user != null ? String.valueOf(user.getOption(Option.VANISH)) : "false";
         }, "Returns true if the player is vanished");
+
+        placeholder.register("user_vanish_status", (player) -> {
+            List<String> grades = plugin.getConfiguration().getVanishStatusGrades();
+            boolean canSee = grades.stream().anyMatch(grade -> player.hasPermission("group." + grade));
+            if (!canSee) return "";
+            User user = iStorage.getUser(player.getUniqueId());
+            boolean vanished = user != null && user.getOption(Option.VANISH);
+            return vanished ? "&aVanish activé" : "&cVanish désactivé";
+        }, "Returns the vanish status, only visible to players in the configured LuckPerms grades");
 
         // Frozen
         placeholder.register("user_is_frozen", (player) -> {

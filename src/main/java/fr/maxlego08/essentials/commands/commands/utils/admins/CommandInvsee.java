@@ -6,9 +6,11 @@ import fr.maxlego08.essentials.api.commands.Permission;
 import fr.maxlego08.essentials.api.messages.Message;
 import fr.maxlego08.essentials.api.nms.PlayerUtil;
 import fr.maxlego08.essentials.api.user.Option;
+import fr.maxlego08.essentials.api.utils.inventory.PlayerInventoryHolder;
 import fr.maxlego08.essentials.zutils.utils.commands.VCommand;
 import fr.maxlego08.menu.common.utils.nms.NmsVersion;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.inventory.Inventory;
 
 import java.lang.reflect.Constructor;
 
@@ -33,7 +35,14 @@ public class CommandInvsee extends VCommand {
                 plugin.getLogger().severe("Impossible to find the player " + this.argAsString(0));
                 return CommandResultType.SYNTAX_ERROR;
             }
-            this.player.openInventory(onlinePlayer.getInventory());
+            PlayerInventoryHolder holder = new PlayerInventoryHolder(onlinePlayer, this.player);
+            String title = Message.INVSEE.getMessageAsString().replace("%player%", onlinePlayer.getName());
+            Inventory inventory = componentMessage.createInventory(title, PlayerInventoryHolder.SIZE, holder);
+            holder.setInventory(inventory);
+            holder.fill(inventory);
+
+            this.player.openInventory(inventory);
+            holder.register();
 
         } else {
 

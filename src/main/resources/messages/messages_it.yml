@@ -1,4 +1,4 @@
-########################################################################################################################
+﻿########################################################################################################################
 #
 #  ███████╗███████╗░██████╗░██████╗███████╗███╗░░██╗████████╗██╗░█████╗░██╗░░░░░░██████╗
 #  ╚════██║██╔════╝██╔════╝██╔════╝██╔════╝████╗░██║╚══██╔══╝██║██╔══██╗██║░░░░░██╔════╝
@@ -211,12 +211,10 @@ command-tp-cancel-sender: "<error>Cancellata #99E0FFla tua richiesta di teletras
 command-tp-cancel-receiver: "&f%player% <error>ha cancellato la sua richiesta di teletrasporto."
 command-world-teleport-self: "<success>Sei appena stato teletrasportato nel mondo &f%world%<success>."
 command-world-teleport-other: "<success>Hai appena teletrasportato &f%player% <success>nel mondo &f%world%<success>."
-command-random-tp-other: "<success>Hai appena teletrasportato casualmente il giocatore &f%player% <success>nel mondo &f%world%<success>."
 command-tp: "&7Ti sei teletrasportato da #34cfe0%player%&f."
 command-tp-self: "&7Hai teletrasportato #34cfe0%player%&7 da te."
 command-back: "&7Tornando alla posizione precedente."
 command-back-error: "<error>Non hai nessuna posizione precedente in cui tornare."
-command-random-tp-error: "<error>Dopo diversi tentativi, non si è riusciti a trovare una posizione sicura. Riprova."
 
 # First join
 join-message: "<success>+ #99E0FF%player%"
@@ -304,8 +302,6 @@ description-warp-set: "Crea un warp"
 description-warp-use: "Teletrasportati a un warp"
 description-warp-del: "Elimina un warp"
 description-warp-list: "Mostra la lista dei warp"
-description-tp-random: "Teletrasporto casuale nel mondo"
-description-tp-random-other: "Forza un teletrasporto casuale per un giocatore"
 description-set-home: "Crea una casa"
 description-del-home: "Elimina una casa"
 description-home: "Teletrasportati a una casa"
@@ -446,8 +442,6 @@ teleport-damage: "<error>Teletrasporto annullato. Hai ricevuto danno."
 teleport-error-location: "<error>Non è stato possibile teletrasportarti in modo sicuro."
 
 # Sistema di coda RTP
-teleport-already-in-queue: "<error>Sei già nella coda di teletrasporto!"
-teleport-added-to-queue: "<success>Sei stato aggiunto alla coda di teletrasporto. Posizione: #0EEA93%position%"
 
 teleport-message:
   type: ACTION
@@ -940,7 +934,6 @@ command-pub:
   message: "&8[&fPUB&8] <white>%player%<dark_gray>: <red>%message%"
   type: WITHOUT_PREFIX
 command-pub-pattern-error: "<error>Il tuo messaggio contiene caratteri vietati."
-command-random-tp-configuration-not-found: "<error>Impossibile trovare la configurazione del TP casuale per il mondo &f%world%<error>."
 command-set-home-world: "<error>Non puoi creare una home qui"
 command-spawn-first-not-define: "<error>Il primo spawn non esiste. Contatta un amministratore."
 command-spawn-location-invalid: "<error>Lo spawn è invalido, contatta un amministratore"
@@ -1069,5 +1062,15 @@ death-message-mythic-mob: "#99E0FF%player% &7è stato ucciso da <gradient:#ff660
 death-message-fists: "&7pugni"
 
 teleport-message-spawn-console: "<success>Hai appena teletrasportato il giocatore <white>%player% <success>allo spawn."
-teleport-random-start: "&7Ricerca di una destinazione... non devi muoverti."
 worldedit-permission-error: "<error>Non puoi usare worldedit qui."
+# Join Rewards
+join-rewards-milestone-winner:
+  - ""
+  - "<gold>★ <yellow>Congratulazioni <white>%player%<yellow>! Sei il <gold>%count%° <yellow>giocatore ad unirti al server!"
+  - "<yellow>Hai ricevuto una ricompensa speciale!"
+  - ""
+join-rewards-milestone-all:
+  - ""
+  - "<gold>★ <yellow>%player% <white>è il <gold>%count%° <yellow>giocatore ad unirsi al server!"
+  - "<yellow>Tutti i giocatori online hanno ricevuto una ricompensa!"
+  - ""

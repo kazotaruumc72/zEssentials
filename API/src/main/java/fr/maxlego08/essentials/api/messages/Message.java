@@ -161,7 +161,6 @@ public enum Message {
     COMMAND_MORE_SUCCESS("&7You just put your item to &f64&7."),
     COMMAND_WORLD_TELEPORT_SELF("<success>You have just been teleported into the world &f%world%<success>."),
     COMMAND_WORLD_TELEPORT_OTHER("<success>You just teleported the player &f%player% <success>in the world &f%world%<success>."),
-    COMMAND_RANDOM_TP_OTHER("<success>You just randomly teleported the player &f%player% <success>in the world &f%world%<success>."),
 
     COMMAND_COMPACT_TYPE("<error>Impossible to compact the material &f%material%<error>."),
     COMMAND_COMPACT_ERROR("<error>You have no &f%item%<error> in your inventory."),
@@ -213,8 +212,6 @@ public enum Message {
     DESCRIPTION_TPA_HERE("Teleport a player to your location"),
     DESCRIPTION_TP("Teleport to a player"),
     DESCRIPTION_TP_ALL("Teleport all player to your position"),
-    DESCRIPTION_TP_RANDOM("Random Teleport in the world"),
-    DESCRIPTION_TP_RANDOM_OTHER("Force a random teleport for a player"),
     DESCRIPTION_BACK("Teleport to your previous location"),
     DESCRIPTION_TP_SELF("Teleport a player to your location"),
     DESCRIPTION_TPA_ACCEPT("Accept a teleportation request"),
@@ -326,6 +323,7 @@ public enum Message {
     DESCRIPTION_MAIL_GIVEALL("Give an items to players mailbox"),
     DESCRIPTION_MAIL_GIVEALL_HAND("Send the item in your hand to players mailboxes"),
     DESCRIPTION_RULES("Read server rules"),
+    DESCRIPTION_WELCOME("Welcome a new player and get a reward"),
     DESCRIPTION_SUICIDE("Kill yourself"),
     DESCRIPTION_HOLOGRAM("Show hologram commands"),
     DESCRIPTION_HOLOGRAM_CREATE("Create a hologram"),
@@ -399,15 +397,13 @@ public enum Message {
 
     YOU("you"),
     TRASH("&8Trash"),
+    INVSEE("&8Inventory of &7%player%"),
 
     // Teleportation
 
     TELEPORT_MOVE("<error>You must not move!"),
     TELEPORT_MESSAGE(MessageType.ACTION, "&7Teleporting in #0EEA93%seconds% &7seconds, you must not move."),
     TELEPORT_SUCCESS(MessageType.ACTION, "#99E0FFYou have just teleported successfully!"),
-    TELEPORT_RANDOM_START("&7Searching for a destination... you must not move."),
-    TELEPORT_MESSAGE_RANDOM(MessageType.ACTION, "&7Teleporting in #0EEA93%seconds% &7seconds, you must not move."),
-    TELEPORT_SUCCESS_RANDOM(MessageType.ACTION, "#99E0FFYou have just teleported successfully!"),
     TELEPORT_MESSAGE_SPAWN(
             ClassicMessage.tchat("&7Teleporting in #0EEA93%seconds% &7seconds, you must not move."),
             ClassicMessage.action("&7Teleporting in #0EEA93%seconds% &7seconds, you must not move.")
@@ -440,10 +436,7 @@ public enum Message {
     TELEPORT_CROSS_SERVER_CONNECTING("<success>Connecting to server &f%server%<success>..."),
     TELEPORT_CROSS_SERVER_PLAYER_NOT_FOUND("<error>Player &f%player% <error>was not found on any server."),
     
-    // RTP Queue System Messages
-    TELEPORT_ALREADY_IN_QUEUE("<error>You are already in the teleportation queue!"),
-    TELEPORT_ADDED_TO_QUEUE("<success>You have been added to the teleportation queue. Position: #0EEA93%position%"),
-    
+
     COOLDOWN("<error>✘ You must wait for &f%cooldown% <error>before performing this action."),
     COOLDOWN_COMMANDS("<error>✘ You must wait for &f%cooldown% <error>before performing this commands."),
 
@@ -526,8 +519,6 @@ public enum Message {
     COMMAND_WARP_DELETE("<success>You just removed the warp &f%name%<success>."),
     COMMAND_WARP_INVALID("<error>Warp &f%name% <error>has an invalide location."),
 
-    COMMAND_RANDOM_TP_ERROR("<error>No safe location found after multiple attempts, please try again."),
-    COMMAND_RANDOM_TP_CONFIGURATION_NOT_FOUND("<error>Impossible to find the random tp configuration for the world &f%world%<error>."),
 
     COMMAND_SET_HOME_INVALIDE_NAME("&f%name% <error>is not a valid name, please choose another one."),
     COMMAND_SET_HOME_TOO_LONG("&f%name% <error>is too long, please choose another one."),
@@ -1015,7 +1006,43 @@ public enum Message {
     DEATH_MESSAGE_MOB("#99E0FF%player% &7was killed by &c%mob%&7."),
     DEATH_MESSAGE_MYTHIC_MOB("#99E0FF%player% &7was slain by <gradient:#ff6600:#ff0000>%mob%</gradient>&7!"),
     DEATH_MESSAGE_FISTS("&7fists"),
-    ;
+
+    // Join Rewards
+    JOIN_REWARDS_MILESTONE_WINNER(
+            "",
+            "<gold>★ <yellow>Congratulations <white>%player%<yellow>! You are the <gold>%count%th <yellow>player to join the server!",
+            "<yellow>You received a special reward!",
+            ""
+    ),
+    JOIN_REWARDS_MILESTONE_ALL(
+            "",
+            "<gold>★ <yellow>%player% <white>is the <gold>%count%th <yellow>player to join!",
+            "<yellow>All online players received a reward!",
+            ""
+    ),
+
+    // New player rewards (tiered reward for each new player)
+    NEW_PLAYER_REWARDS_RECEIVED("<gold>★ <yellow>Bienvenue ! Vous êtes le <gold>%rank%e <yellow>joueur du serveur, vous recevez &e%reward% &e!"),
+
+    // Online rewards (rewards when enough players stay connected)
+    ONLINE_REWARDS_START(
+            "",
+            "<gold>★ <yellow>Palier de <gold>%players% joueurs <yellow>atteint ! Restez connectés pendant <gold>%duration% <yellow>pour valider la récompense !",
+            ""
+    ),
+    ONLINE_REWARDS_CANCEL("<error>Un joueur s'est déconnecté, le palier de <gold>%players% joueurs</gold> est annulé... Le compteur repart de zéro !"),
+    ONLINE_REWARDS_VALIDATED(
+            "",
+            "<gold>★ <yellow>Palier de <gold>%players% joueurs <yellow>validé ! Tous les joueurs connectés reçoivent une récompense !",
+            ""
+    ),
+
+    // Welcome (/bvn)
+    WELCOME_BROADCAST("&e%player% &7souhaite la bienvenue à #99E0FF%target% &7!"),
+    WELCOME_REWARD("<success>Vous avez reçu &e%amount% &apour avoir souhaité la bienvenue à #99E0FF%target% &a!"),
+    WELCOME_NO_PLAYER("<error>Aucun nouveau joueur à accueillir pour le moment."),
+    WELCOME_ALREADY("<error>Vous avez déjà souhaité la bienvenue à ce joueur !"),
+    WELCOME_YOURSELF("<error>Vous ne pouvez pas vous souhaiter la bienvenue à vous-même !");
 
     private EssentialsPlugin plugin;
     private List<EssentialsMessage> messages = new ArrayList<>();

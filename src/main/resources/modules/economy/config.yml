@@ -182,3 +182,32 @@ command-set-reason: "Set by %sender%"
 # %zessentials_user_pay_status% returns the configured value below
 paytoggle-placeholder-enabled: "&aEnabled"
 paytoggle-placeholder-disabled: "&cDisabled"
+
+# Dynamic balance for the placeholder %zessentials_user_balance_<economy>%
+# While a player is chaining money changes (farming, selling or buying in a menu, ...), the placeholder keeps
+# showing the balance the player had before the first change. Once the player stops earning or spending money
+# (no change during dynamic-balance-inactivity-milliseconds), the placeholder first displays the difference
+# (+500 in green, -100 in red), then the number scrolls in order (110, 120, ...) up or down to the new balance.
+dynamic-balance-enabled: true
+
+# Automatically format the numbers displayed by the placeholder: decimals are rounded (27.72 -> 28)
+# and large numbers are reduced (10037.40 -> 10K, 1550000 -> 1.6M). Set to false to display raw numbers.
+dynamic-balance-auto-format: true
+
+# Time in milliseconds without any money change before the animation starts
+dynamic-balance-inactivity-milliseconds: 3000
+
+# Time in milliseconds during which the gain/loss (+500 / -100) is displayed
+dynamic-balance-delta-milliseconds: 7000
+
+# Duration in milliseconds of the number scrolling. Set to 0 to jump directly
+# to the final balance instead of scrolling through intermediate values.
+dynamic-balance-scroll-milliseconds: 0
+
+# Display of the gain/loss, %amount% is the absolute value of the difference
+dynamic-balance-gain-format: "&a+%amount%"
+dynamic-balance-loss-format: "&c-%amount%"
+
+# Display of the number while it scrolls, %amount% is the current value of the scrolling number
+dynamic-balance-scroll-gain-format: "&a%amount%"
+dynamic-balance-scroll-loss-format: "&c%amount%"

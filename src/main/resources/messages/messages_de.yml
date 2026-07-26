@@ -1,4 +1,4 @@
-########################################################################################################################
+﻿########################################################################################################################
 #
 #  ███████╗███████╗░██████╗░██████╗███████╗███╗░░██╗████████╗██╗░█████╗░██╗░░░░░░██████╗
 #  ╚════██║██╔════╝██╔════╝██╔════╝██╔════╝████╗░██║╚══██╔══╝██║██╔══██╗██║░░░░░██╔════╝
@@ -225,7 +225,6 @@ command-tp-cancel-sender: "<error>Teleport-Anfrage an #99E0FF%player% abgebroche
 command-tp-cancel-receiver: "&f%player% <error>hat seine Teleport-Anfrage an dich abgebrochen."
 command-world-teleport-self: "<success>Du wurdest gerade in die Welt &f%world%<success> teleportiert."
 command-world-teleport-other: "<success>Du hast den Spieler &f%player% <success>in die Welt &f%world%<success> teleportiert."
-command-random-tp-other: "<success>Du hast den Spieler &f%player% <success>zufällig in die Welt &f%world%<success> teleportiert."
 command-tp: "&fDu hast dich gerade zu dem Spieler #34cfe0%player%&f teleportiert."
 command-tp-location: "&fDu hast dich gerade zu #34cfe0%x%&f, #34cfe0%y%&f, #34cfe0%z%&f teleportiert."
 command-tp-location-other: "&fDu hast gerade #34cfe0%player% &fan #34cfe0%x%&f, #34cfe0%y%&f, #34cfe0%z%&f teleportiert."
@@ -233,7 +232,6 @@ command-tp-all: "&fDu hast gerade alle Spieler zu dir teleportiert."
 command-tp-self: "&fDu hast gerade #34cfe0%player%&f zu deiner Position teleportiert."
 command-back: "&7Zurück zum vorherigen Standort."
 command-back-error: "<error>Kein letzter Standort vorhanden. Zurückgehen unmöglich."
-command-random-tp-error: "<error>Nach mehreren Versuchen wurde kein sicherer Ort gefunden, bitte versuche es erneut."
 
 
 
@@ -326,8 +324,6 @@ description-warp-set: "Einen Warp erstellen"
 description-warp-use: "Zu einem Warp teleportieren"
 description-warp-del: "Einen Warp löschen"
 description-warp-list: "Warp-Liste anzeigen"
-description-tp-random: "Zufällig in der Welt teleportieren"
-description-tp-random-other: "Erzwingt eine zufällige Teleportation für einen Spieler"
 description-set-home: "Ein Zuhause erstellen"
 description-del-home: "Ein Zuhause löschen"
 description-home: "Zu einem Zuhause teleportieren"
@@ -470,8 +466,6 @@ teleport-damage: "<error>Du darfst während der Teleportation keinen Schaden neh
 teleport-error-location: "<error>Du kannst nicht sicher teleportiert werden."
 
 # RTP-Warteschlangensystem
-teleport-already-in-queue: "<error>Du bist bereits in der Teleportations-Warteschlange!"
-teleport-added-to-queue: "<success>Du wurdest zur Teleportations-Warteschlange hinzugefügt. Position: #0EEA93%position%"
 
 teleport-message:
   type: ACTION
@@ -984,7 +978,6 @@ command-pub:
   message: "&8[&fPUB&8] <white>%player%<dark_gray>: <red>%message%"
   type: WITHOUT_PREFIX
 command-pub-pattern-error: "<error>Deine Nachricht enthält verbotene Zeichen."
-command-random-tp-configuration-not-found: "<error>Die Konfiguration für die zufällige Teleportation in der Welt &f%world%<error> wurde nicht gefunden."
 command-spawn-first-not-define: "<error>Der erste Spawn existiert nicht. Bitte kontaktiere einen Administrator."
 command-spawn-location-invalid: "<error>Der Spawn ist ungültig, bitte kontaktiere einen Administrator."
 command-tp-location-error: "<error>Die Koordinaten liegen außerhalb der Welt."
@@ -1106,5 +1099,15 @@ death-message-mythic-mob: "#99E0FF%player% &7wurde von <gradient:#ff6600:#ff0000
 death-message-fists: "&7Fäusten"
 
 teleport-message-spawn-console: "<success>Du hast den Spieler <white>%player% <success>zum Spawn teleportiert."
-teleport-random-start: "&7Suche nach einem Ziel... du darfst dich nicht bewegen."
 worldedit-permission-error: "<error>Du kannst WorldEdit hier nicht verwenden."
+# Join Rewards
+join-rewards-milestone-winner:
+  - ""
+  - "<gold>★ <yellow>Glückwunsch <white>%player%<yellow>! Du bist der <gold>%count%te <yellow>Spieler, der dem Server beigetreten ist!"
+  - "<yellow>Du hast eine besondere Belohnung erhalten!"
+  - ""
+join-rewards-milestone-all:
+  - ""
+  - "<gold>★ <yellow>%player% <white>ist der <gold>%count%te <yellow>Spieler, der dem Server beigetreten ist!"
+  - "<yellow>Alle Online-Spieler haben eine Belohnung erhalten!"
+  - ""

@@ -74,6 +74,7 @@ public class MainConfiguration extends YamlLoader implements Configuration {
     private List<Long> flyTaskAnnounce;
     private String placeholderEmpty;
     private final List<String> forceCommands = new ArrayList<>();
+    private List<String> vanishStatusGrades = new ArrayList<>();
 
     public MainConfiguration(ZEssentialsPlugin plugin) {
         this.plugin = plugin;
@@ -391,6 +392,11 @@ public class MainConfiguration extends YamlLoader implements Configuration {
     @Override
     public List<String> getForceCommands() {
         return this.forceCommands;
+    }
+
+    @Override
+    public List<String> getVanishStatusGrades() {
+        return this.vanishStatusGrades;
     }
 
 }

@@ -6,6 +6,7 @@ import fr.maxlego08.essentials.api.vault.PlayerVaults;
 import fr.maxlego08.essentials.api.vault.Vault;
 import fr.maxlego08.essentials.api.vault.VaultItem;
 import fr.maxlego08.essentials.api.vault.VaultResult;
+import fr.maxlego08.essentials.module.modules.vault.VaultModule;
 import fr.maxlego08.menu.api.button.Button;
 import fr.maxlego08.menu.api.engine.InventoryEngine;
 import fr.maxlego08.menu.api.utils.Placeholders;
@@ -101,6 +102,10 @@ public class ButtonVaultSlotItems extends Button {
 
             manager.remove(vault, vaultItem, player, -1, slot);
             updateInventoryBag(player, vaultItem, slot, inventoryDefault, vault);
+        } else if (clickType == ClickType.MIDDLE && manager instanceof VaultModule vaultModule) {
+
+            // Sell the whole vault item through the external sell interface (LootSMPCore).
+            vaultModule.openSellFlow(player, vaultItem.getItemStack());
         }
     }
 

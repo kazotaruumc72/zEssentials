@@ -106,8 +106,25 @@ public class ZTeleportRequest extends ZUtils implements TeleportRequest {
         this.fromUser.teleportNow(location);
         this.fromUser.removeTeleportRequest(this.toUser);
 
+        applyProtection(teleportationModule);
+
         message(this.fromUser, Message.TELEPORT_SUCCESS);
         this.isTeleport = true;
+    }
+
+    private void applyProtection(TeleportationModule teleportationModule) {
+        long duration = teleportationModule.getTeleportTpaProtection();
+        if (duration <= 0) return;
+
+        long protectedUntil = System.currentTimeMillis() + duration;
+        protect(this.fromUser, protectedUntil);
+        protect(this.toUser, protectedUntil);
+    }
+
+    private void protect(User user, long protectedUntil) {
+        if (user.getProtectionDuration() < protectedUntil) {
+            user.setProtectionDuration(protectedUntil);
+        }
     }
 
     @Override

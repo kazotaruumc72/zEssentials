@@ -2,7 +2,6 @@ package fr.maxlego08.essentials.commands.commands.weather;
 
 import fr.maxlego08.essentials.api.EssentialsPlugin;
 import org.bukkit.World;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Set;
 import java.util.UUID;
@@ -17,7 +16,11 @@ class TimeTransition {
     private static final long WORLD_TIME_STEP = 150;
 
     /**
-     * Smoothly transitions world time to target time
+     * Smoothly transitions world time to target time.
+     * <p>
+     * Each step is scheduled on the target world's region scheduler (FoliaLib) so it
+     * works on Folia/regionised servers and when changing the time of a world other
+     * than the command sender's current world.
      */
     static void transitionWorldTime(EssentialsPlugin plugin, World world, long targetTime) {
         UUID worldId = world.getUID();
@@ -26,22 +29,20 @@ class TimeTransition {
         long startTime = world.getFullTime();
         long diff = (targetTime - startTime + 24000) % 24000;
 
-        new BukkitRunnable() {
-            long progressed = 0;
+        scheduleStep(plugin, world, worldId, targetTime, diff, 0);
+    }
 
-            @Override
-            public void run() {
-                if (progressed >= diff) {
-                    world.setFullTime(targetTime);
-                    TIME_CHANGING_WORLDS.remove(worldId);
-                    cancel();
-                    return;
-                }
-
-                world.setFullTime(world.getFullTime() + WORLD_TIME_STEP);
-                progressed += WORLD_TIME_STEP;
+    private static void scheduleStep(EssentialsPlugin plugin, World world, UUID worldId, long targetTime, long diff, long progressed) {
+        plugin.getScheduler().runLater(() -> {
+            if (progressed >= diff) {
+                world.setFullTime(targetTime);
+                TIME_CHANGING_WORLDS.remove(worldId);
+                return;
             }
-        }.runTaskTimer(plugin, 0L, 1L);
+
+            world.setFullTime(world.getFullTime() + WORLD_TIME_STEP);
+            scheduleStep(plugin, world, worldId, targetTime, diff, progressed + WORLD_TIME_STEP);
+        }, 1L);
     }
 
     /**

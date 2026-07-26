@@ -12,6 +12,8 @@ import fr.maxlego08.essentials.api.vault.Vault;
 import fr.maxlego08.essentials.api.vault.VaultItem;
 import fr.maxlego08.essentials.api.vault.VaultManager;
 import fr.maxlego08.essentials.api.vault.VaultResult;
+import fr.maxlego08.essentials.api.vault.VaultSellEntry;
+import fr.maxlego08.essentials.api.vault.VaultSellHook;
 import fr.maxlego08.essentials.api.vault.VaultSlotType;
 import fr.maxlego08.essentials.module.ZModule;
 import fr.maxlego08.menu.common.utils.nms.ItemStackUtils;
@@ -21,10 +23,13 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.RegisteredServiceProvider;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -47,6 +52,8 @@ public class VaultModule extends ZModule implements VaultManager {
     private String defaultVaultName;
     private List<PermissionSlotsVault> vaultPermissions;
     private VaultSlotType vaultSlotType = VaultSlotType.MAX;
+    private VaultSellHook vaultSellHook;
+    private final Map<UUID, SellDialogSession> sellDialogs = new HashMap<>();
 
     public VaultModule(ZEssentialsPlugin plugin) {
         super(plugin, "vault");
@@ -59,6 +66,7 @@ public class VaultModule extends ZModule implements VaultManager {
         this.loadInventory("vault");
         this.loadInventory("vault-configuration");
         this.loadInventory("vault-admin");
+        this.loadInventory("vault-sell");
     }
 
     @Override
@@ -489,5 +497,198 @@ public class VaultModule extends ZModule implements VaultManager {
 
     public List<PermissionSlotsVault> getVaultPermissions() {
         return this.vaultPermissions;
+    }
+
+    @Override
+    public Optional<VaultSellHook> getVaultSellHook() {
+        if (this.vaultSellHook == null) {
+            RegisteredServiceProvider<VaultSellHook> provider = this.plugin.getServer().getServicesManager().getRegistration(VaultSellHook.class);
+            if (provider != null) this.vaultSellHook = provider.getProvider();
+        }
+        return Optional.ofNullable(this.vaultSellHook);
+    }
+
+    @Override
+    public long withdrawForSale(Vault vault, VaultItem vaultItem, int slot, long amount) {
+        if (vault == null || vaultItem == null || !vault.contains(slot)) return 0;
+
+        amount = Math.min(amount, vaultItem.getQuantity());
+        if (amount <= 0) return 0;
+
+        var storage = getStorage();
+        if (vaultItem.getQuantity() > amount) {
+            vaultItem.removeQuantity(amount);
+            storage.updateVaultQuantity(vault.getUniqueId(), vault.getVaultId(), vaultItem.getSlot(), vaultItem.getQuantity());
+        } else {
+            vault.getVaultItems().remove(slot);
+            storage.removeVaultItem(vault.getUniqueId(), vault.getVaultId(), vaultItem.getSlot());
+        }
+        return amount;
+    }
+
+    // ── Middle-click sell flow (see VaultSellHook) ─────────────────────────────
+
+    /**
+     * Transient state of a player's multi-vault sell selection dialog: the clicked
+     * item and the candidate vaults, each of which can be toggled on/off (all on
+     * by default).
+     */
+    public static class SellDialogSession {
+        private final ItemStack prototype;
+        private final List<Integer> vaultIds;
+        private final Set<Integer> selected;
+
+        public SellDialogSession(ItemStack prototype, List<Integer> vaultIds) {
+            this.prototype = prototype;
+            this.vaultIds = vaultIds;
+            this.selected = new LinkedHashSet<>(vaultIds);
+        }
+
+        public ItemStack getPrototype() {
+            return prototype;
+        }
+
+        public List<Integer> getVaultIds() {
+            return vaultIds;
+        }
+
+        public boolean isSelected(int vaultId) {
+            return selected.contains(vaultId);
+        }
+
+        public void toggle(int vaultId) {
+            if (!selected.remove(vaultId)) selected.add(vaultId);
+        }
+
+        public Set<Integer> getSelected() {
+            return selected;
+        }
+    }
+
+    /**
+     * Entry point for the middle-click sell action. Finds every vault of the player
+     * that holds a sellable item similar to {@code prototype}: with a single vault the
+     * items go straight to the external sell interface; with several the multi-vault
+     * selection dialog is opened.
+     *
+     * @return {@code true} if the item was sellable (and the flow was started)
+     */
+    public boolean openSellFlow(Player player, ItemStack prototype) {
+        Optional<VaultSellHook> optionalHook = getVaultSellHook();
+        if (optionalHook.isEmpty()) return false;
+
+        VaultSellHook hook = optionalHook.get();
+        if (prototype == null || !hook.canSell(prototype)) return false;
+
+        PlayerVaults playerVaults = getPlayerVaults(player);
+        List<Integer> candidates = playerVaults.getVaults().values().stream()
+                .filter(vault -> vault.find(prototype).isPresent())
+                .map(Vault::getVaultId)
+                .sorted()
+                .collect(Collectors.toList());
+
+        if (candidates.isEmpty()) return false;
+
+        this.sellDialogs.remove(player.getUniqueId());
+
+        if (candidates.size() == 1) {
+            sellFromVaults(player, candidates, prototype, hook);
+            return true;
+        }
+
+        this.sellDialogs.put(player.getUniqueId(), new SellDialogSession(prototype.clone(), candidates));
+        this.plugin.openInventory(player, "vault-sell");
+        return true;
+    }
+
+    public SellDialogSession getSellDialog(UUID uniqueId) {
+        return this.sellDialogs.get(uniqueId);
+    }
+
+    public void toggleSellDialog(UUID uniqueId, int vaultId) {
+        SellDialogSession session = this.sellDialogs.get(uniqueId);
+        if (session != null) session.toggle(vaultId);
+    }
+
+    public void cancelSellDialog(UUID uniqueId) {
+        this.sellDialogs.remove(uniqueId);
+    }
+
+    /**
+     * Confirms the current dialog: sells the item from every selected vault.
+     */
+    public void confirmSellDialog(Player player) {
+        SellDialogSession session = this.sellDialogs.remove(player.getUniqueId());
+        if (session == null) return;
+
+        Optional<VaultSellHook> optionalHook = getVaultSellHook();
+        if (optionalHook.isEmpty()) {
+            player.closeInventory();
+            return;
+        }
+        sellFromVaults(player, session.getSelected(), session.getPrototype(), optionalHook.get());
+    }
+
+    /**
+     * Withdraws the full stored quantity of {@code prototype} from each of the given
+     * vaults and hands the resulting entries to the external sell interface.
+     */
+    private void sellFromVaults(Player player, Collection<Integer> vaultIds, ItemStack prototype, VaultSellHook hook) {
+        PlayerVaults playerVaults = getPlayerVaults(player);
+        List<VaultSellEntry> entries = new ArrayList<>();
+
+        for (int vaultId : vaultIds) {
+            Vault vault = playerVaults.getVaults().get(vaultId);
+            if (vault == null) continue;
+
+            Optional<VaultItem> optional = vault.find(prototype);
+            if (optional.isEmpty()) continue;
+
+            VaultItem vaultItem = optional.get();
+            long quantity = vaultItem.getQuantity();
+            long withdrawn = withdrawForSale(vault, vaultItem, vaultItem.getSlot(), quantity);
+            if (withdrawn > 0) {
+                entries.add(new VaultSellEntry(prototype.clone(), withdrawn));
+            }
+        }
+
+        if (entries.isEmpty()) {
+            player.closeInventory();
+            return;
+        }
+        hook.openSell(player, entries);
+    }
+
+    @Override
+    public long addItemToVaults(UUID uuid, List<Integer> vaultIds, ItemStack itemStack, long amount) {
+        if (itemStack == null || itemStack.getType().isAir() || amount <= 0 || vaultIds == null) return amount;
+
+        var storage = getStorage();
+        var playerVaults = getPlayerVaults(uuid);
+        long remaining = amount;
+
+        for (int vaultId : vaultIds) {
+            if (remaining <= 0) break;
+            if (vaultId <= 0) continue;
+
+            Vault vault = playerVaults.getVault(vaultId);
+            if (vault == null) continue;
+
+            Optional<VaultItem> optional = vault.find(itemStack);
+            if (optional.isPresent()) {
+                VaultItem vaultItem = optional.get();
+                vaultItem.addQuantity(remaining);
+                storage.updateVaultQuantity(uuid, vault.getVaultId(), vaultItem.getSlot(), vaultItem.getQuantity());
+                remaining = 0;
+            } else {
+                int nextSlot = vault.getNextSlot();
+                if (nextSlot == -1) continue;
+                VaultItem newVaultItem = new ZVaultItem(nextSlot, itemStack, remaining);
+                vault.getVaultItems().put(nextSlot, newVaultItem);
+                storage.createVaultItem(uuid, vault.getVaultId(), nextSlot, newVaultItem.getQuantity(), ItemStackUtils.serializeItemStack(itemStack));
+                remaining = 0;
+            }
+        }
+        return remaining;
     }
 }

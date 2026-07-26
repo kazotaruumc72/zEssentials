@@ -22,8 +22,12 @@ import fr.maxlego08.essentials.module.modules.SpawnModule;
 import fr.maxlego08.essentials.module.modules.AutoMessageModule;
 import fr.maxlego08.essentials.module.modules.StepModule;
 import fr.maxlego08.essentials.module.modules.TeleportationModule;
+import fr.maxlego08.essentials.module.modules.JoinRewardsModule;
+import fr.maxlego08.essentials.module.modules.NewPlayerRewardsModule;
+import fr.maxlego08.essentials.module.modules.OnlineRewardsModule;
 import fr.maxlego08.essentials.module.modules.VoteModule;
 import fr.maxlego08.essentials.module.modules.WarpModule;
+import fr.maxlego08.essentials.module.modules.WelcomeModule;
 import fr.maxlego08.essentials.module.modules.scoreboard.ScoreboardModule;
 import fr.maxlego08.essentials.module.modules.vault.VaultModule;
 import fr.maxlego08.essentials.module.modules.worldedit.WorldeditModule;
@@ -81,6 +85,10 @@ public class ZModuleManager implements ModuleManager {
         this.modules.put(StepModule.class, new StepModule(this.plugin));
         this.modules.put(AFKModule.class, new AFKModule(this.plugin));
         this.modules.put(AutoMessageModule.class, new AutoMessageModule(this.plugin));
+        this.modules.put(JoinRewardsModule.class, new JoinRewardsModule(this.plugin));
+        this.modules.put(WelcomeModule.class, new WelcomeModule(this.plugin));
+        this.modules.put(NewPlayerRewardsModule.class, new NewPlayerRewardsModule(this.plugin));
+        this.modules.put(OnlineRewardsModule.class, new OnlineRewardsModule(this.plugin));
         if (plugin.isPaperVersion()) {
             this.modules.put(DeathMessageModule.class, new DeathMessageModule(this.plugin));
         }

@@ -276,4 +276,40 @@ public interface VaultManager {
     Optional<VaultItemDTO> getVaultItem(UUID uniqueId, int vaultId, int slot);
 
     boolean forceDeleteSlot(UUID uniqueId, int vaultId, int slot);
+
+    /**
+     * Gets the currently registered {@link VaultSellHook}, if any.
+     *
+     * <p>The hook is provided by an external plugin through the Bukkit
+     * {@link org.bukkit.plugin.ServicesManager}; it is looked up lazily and cached.
+     *
+     * @return an optional containing the registered hook, or empty if none is registered
+     */
+    Optional<VaultSellHook> getVaultSellHook();
+
+    /**
+     * Withdraws a quantity of an item from a vault <b>without</b> giving it to the
+     * player's inventory. Used by the sell flow, where the withdrawn items are handed
+     * over to an external sell system instead. The change is persisted.
+     *
+     * @param vault     the vault to withdraw from
+     * @param vaultItem the item being withdrawn
+     * @param slot      the slot of the item in the vault
+     * @param amount    the amount to withdraw
+     * @return the amount actually withdrawn (clamped to the stored quantity)
+     */
+    long withdrawForSale(Vault vault, VaultItem vaultItem, int slot, long amount);
+
+    /**
+     * Adds an item to a player's vaults, trying each of the given vault ids in order
+     * (existing matching stack first, then the next free slot) until the whole amount
+     * is placed. Used by the auto-vault ({@code /autopv}) feature.
+     *
+     * @param uuid     the UUID of the player
+     * @param vaultIds the vault ids to fill, in priority order
+     * @param item     the item to add
+     * @param amount   the amount to add
+     * @return the amount that could not be placed (0 if everything was stored)
+     */
+    long addItemToVaults(UUID uuid, List<Integer> vaultIds, ItemStack item, long amount);
 }

@@ -102,8 +102,6 @@ public enum Permission {
     ESSENTIALS_WARP_("Allows to teleport to a specific warp", "warp name"),
     ESSENTIALS_WARPS,
     ESSENTIALS_WARP_DEL,
-    ESSENTIALS_TP_RANDOM,
-    ESSENTIALS_TP_RANDOM_OTHER("Allows to random teleport another player"),
     ESSENTIALS_SET_HOME,
     ESSENTIALS_SET_HOME_CONFIRM,
     ESSENTIALS_SET_HOME_OTHER("Allows to set another player’s home"),
@@ -205,6 +203,7 @@ public enum Permission {
     ESSENTIALS_MAIL,
     ESSENTIALS_TP_ALL,
     ESSENTIALS_RULES,
+    ESSENTIALS_WELCOME("Allows to welcome a new player with /bvn and get a reward"),
     ESSENTIALS_HOLOGRAM,
     ESSENTIALS_HOLOGRAM_CREATE,
     ESSENTIALS_HOLOGRAM_DELETE,
@@ -311,7 +310,9 @@ public enum Permission {
     ESSENTIALS_SILENT_DEATH("Allows you to die silently without a death message"),
     ESSENTIALS_DEATH_MESSAGE_TELEPORT("Allows clicking death messages to teleport to death location"),
     ESSENTIALS_DEATH_MESSAGE_TOGGLE("Allows toggling death messages visibility"),
-    ESSENTIALS_DEATH_MESSAGE_TOGGLE_OTHER("Allows toggling death messages for other players");
+    ESSENTIALS_DEATH_MESSAGE_TOGGLE_OTHER("Allows toggling death messages for other players"),
+
+    ESSENTIALS_JOIN_REWARDS_ADMIN("Allows managing join rewards milestones");
 
     private final String description;
     private final String[] args;

@@ -42,7 +42,7 @@ public class CommandNight extends VCommand {
         if (smooth) {
             TimeTransition.transitionWorldTime(plugin, world, nightTime);
         } else {
-            world.setFullTime(nightTime);
+            plugin.getScheduler().runNextTick(wrappedTask -> world.setFullTime(nightTime));
         }
 
         message(sender, Message.COMMAND_NIGHT, "%world%", world.getName());

@@ -41,6 +41,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.Permissible;
 import org.bukkit.plugin.Plugin;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -465,4 +466,38 @@ public interface EssentialsPlugin extends Plugin {
      * @return the waypoint helper
      */
     WayPointHelper getWayPointHelper();
+
+    /**
+     * Checks if the given player is currently vanished.
+     *
+     * @param player the player to check
+     * @return true if the player is vanished, false otherwise
+     */
+    boolean isVanished(Player player);
+
+    /**
+     * Checks if the player with the given uuid is currently vanished.
+     * If the player is offline, the last known vanish state is used when available.
+     *
+     * @param uniqueId the uuid of the player to check
+     * @return true if the player is vanished, false otherwise
+     */
+    boolean isVanished(UUID uniqueId);
+
+    /**
+     * Checks if the target player is hidden from the viewer by the vanish.
+     * A vanished player stays visible for viewers with the vanish or vanish-see permission.
+     *
+     * @param target the potentially vanished player
+     * @param viewer the player who is looking
+     * @return true if the viewer cannot see the target, false otherwise
+     */
+    boolean isVanishedFor(Player target, Player viewer);
+
+    /**
+     * Returns all currently online vanished players.
+     *
+     * @return the online vanished players
+     */
+    Collection<Player> getVanishedPlayers();
 }

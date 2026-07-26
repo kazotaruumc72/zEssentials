@@ -305,4 +305,13 @@ public interface Configuration extends ConfigurationFile {
      * @return a list of command names that bypass the module disable check
      */
     List<String> getForceCommands();
+
+    /**
+     * Retrieves the list of LuckPerms groups (grades) that are allowed to see the
+     * vanish status placeholder ({@code %zessentials_user_vanish_status%}).
+     * A player must belong to one of these groups for the placeholder to return a value.
+     *
+     * @return a list of LuckPerms group names allowed to see the vanish status
+     */
+    List<String> getVanishStatusGrades();
 }

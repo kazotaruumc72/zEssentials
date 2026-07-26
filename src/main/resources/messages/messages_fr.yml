@@ -1,4 +1,4 @@
-########################################################################################################################
+﻿########################################################################################################################
 #
 #  ███████╗███████╗░██████╗░██████╗███████╗███╗░░██╗████████╗██╗░█████╗░██╗░░░░░░██████╗
 #  ╚════██║██╔════╝██╔════╝██╔════╝██╔════╝████╗░██║╚══██╔══╝██║██╔══██╗██║░░░░░██╔════╝
@@ -242,7 +242,6 @@ command-tp-cancel-sender: "<error>Annulé #99E0FFvotre demande de téléportatio
 command-tp-cancel-receiver: "&f%player% <error>a annulé leur demande de téléportation vers vous."
 command-world-teleport-self: "<success>Vous venez d'être téléporté dans le monde &f%world%<success>."
 command-world-teleport-other: "<success>Vous venez de téléporter le joueur &f%player% <success>dans le monde &f%world%<success>."
-command-random-tp-other: "<success>Vous venez de téléporter aléatoirement le joueur &f%player% <success>dans le monde &f%world%<success>."
 command-tp: "&fVous venez de vous téléporter vers le joueur #34cfe0%player%&f."
 command-tp-location: "&fVous venez de vous téléporter en #34cfe0%x%&f, #34cfe0%y%&f, #34cfe0%z%&f."
 command-tp-location-error: "<error>Les coordonnées sont en dehors du monde."
@@ -251,8 +250,6 @@ command-tp-all: "&fVous venez de téléporter tous les joueurs vers vous."
 command-tp-self: "&fVous venez de téléporter #34cfe0%player%&f à votre position."
 command-back: "&fRetour à l'emplacement précédent."
 command-back-error: "<error>Vous n'avez pas de dernier emplacement. Impossible de revenir en arrière."
-command-random-tp-error: "<error>Aucun emplacement sûr trouvé après plusieurs tentatives, veuillez réessayer."
-command-random-tp-configuration-not-found: "<error>Impossible de trouver la configuration de téléportation aléatoire pour le monde &f%world%<error>."
 command-set-spawn: "&fVous venez de définir l'emplacement de spawn."
 command-spawn-not-define: "<error>Le spawn n'est pas défini. Veuillez contacter un administrateur."
 command-spawn-location-invalid: "<error>Le spawn est invalide, veuillez contacter un administrateur."
@@ -350,8 +347,6 @@ description-warp-set: "Créer un point de téléportation"
 description-warp-use: "Se téléporter vers un point de téléportation"
 description-warp-del: "Supprimer un point de téléportation"
 description-warp-list: "Afficher la liste des points de téléportation"
-description-tp-random: "Téléportation aléatoire dans le monde"
-description-tp-random-other: "Forcer une téléportation aléatoire d'un joueur"
 description-set-home: "Créer un point de maison"
 description-del-home: "Supprimer un point de maison"
 description-home: "Téléporter vers une maison"
@@ -518,8 +513,6 @@ teleport-damage: "<error>Vous ne devez pas subir de dégâts pendant la télépo
 teleport-error-location: "<error>Impossible de vous téléporter en toute sécurité."
 
 # Système de file d'attente RTP
-teleport-already-in-queue: "<error>Vous êtes déjà dans la file d'attente de téléportation !"
-teleport-added-to-queue: "<success>Vous avez été ajouté à la file d'attente de téléportation. Position : #0EEA93%position%"
 
 teleport-message:
   type: ACTION
@@ -547,7 +540,6 @@ teleport-success-warp:
     message: "&7Vous venez de téléporter à la balise #0EEA93%name% &7!"
   - message: "&7Vous venez de téléporter à la balise #0EEA93%name% &7!"
 
-teleport-random-start: "&7Recherche d’une destination... vous ne devez pas bouger."
 teleport-message-random:
   type: ACTION
   message: "&7Téléportation dans #0EEA93%seconds% &7secondes, vous ne devez pas bouger."
@@ -1074,3 +1066,14 @@ death-message-player: "#99E0FF%player% &7a été tué par #34cfe0%killer% &7avec
 death-message-mob: "#99E0FF%player% &7a été tué par &c%mob%&7."
 death-message-mythic-mob: "#99E0FF%player% &7a été tué par <gradient:#ff6600:#ff0000>%mob%</gradient>&7!"
 death-message-fists: "&7ses poings"
+# Join Rewards
+join-rewards-milestone-winner:
+  - ""
+  - "<gold>★ <yellow>Félicitations <white>%player%<yellow> ! Tu es le <gold>%count%ème <yellow>joueur à rejoindre le serveur !"
+  - "<yellow>Tu as reçu une récompense spéciale !"
+  - ""
+join-rewards-milestone-all:
+  - ""
+  - "<gold>★ <yellow>%player% <white>est le <gold>%count%ème <yellow>joueur à rejoindre le serveur !"
+  - "<yellow>Tous les joueurs en ligne ont reçu une récompense !"
+  - ""

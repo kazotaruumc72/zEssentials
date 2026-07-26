@@ -1,6 +1,7 @@
 package fr.maxlego08.essentials.api.economy;
 
 import fr.maxlego08.essentials.api.modules.Module;
+import fr.maxlego08.essentials.api.user.User;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
@@ -319,4 +320,16 @@ public interface EconomyManager extends Module {
      * @return a string representing the disabled status for paytoggle placeholder
      */
     String getPayTogglePlaceholderDisabled();
+
+    /**
+     * Returns the value of the balance placeholder for the given user and economy.
+     * While the user is chaining money changes, the balance displayed before the first change is kept.
+     * Once the changes stop, the difference is displayed (+X / -X), then the number scrolls to the new balance.
+     * If the dynamic balance is disabled or no change happened, the raw balance is returned.
+     *
+     * @param user    The user whose balance to display.
+     * @param economy The economy to display the balance for.
+     * @return The string to display for the balance placeholder.
+     */
+    String getBalancePlaceholder(User user, Economy economy);
 }

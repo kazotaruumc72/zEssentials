@@ -42,7 +42,7 @@ public class CommandDay extends VCommand {
         if (smooth) {
             TimeTransition.transitionWorldTime(plugin, world, dayTime);
         } else {
-            world.setFullTime(dayTime);
+            plugin.getScheduler().runNextTick(wrappedTask -> world.setFullTime(dayTime));
         }
 
         message(sender, Message.COMMAND_DAY, "%world%", world.getName());

@@ -31,12 +31,14 @@ import fr.maxlego08.essentials.api.storage.Persist;
 import fr.maxlego08.essentials.api.storage.ServerStorage;
 import fr.maxlego08.essentials.api.storage.StorageManager;
 import fr.maxlego08.essentials.api.storage.adapter.LocationAdapter;
+import fr.maxlego08.essentials.api.user.Option;
 import fr.maxlego08.essentials.api.user.User;
 import fr.maxlego08.essentials.api.utils.EssentialsUtils;
 import fr.maxlego08.essentials.api.utils.RandomWord;
 import fr.maxlego08.essentials.api.utils.SafeLocation;
 import fr.maxlego08.essentials.api.utils.Warp;
 import fr.maxlego08.essentials.api.utils.component.ComponentMessage;
+import fr.maxlego08.essentials.api.utils.inventory.PlayerInventoryHolder;
 import fr.maxlego08.essentials.api.vault.VaultManager;
 import fr.maxlego08.essentials.api.vote.VoteManager;
 import fr.maxlego08.essentials.api.waypoint.WayPointHelper;
@@ -53,6 +55,8 @@ import fr.maxlego08.essentials.buttons.sanction.ButtonSanctions;
 import fr.maxlego08.essentials.buttons.vault.ButtonVaultIcon;
 import fr.maxlego08.essentials.buttons.vault.ButtonVaultRename;
 import fr.maxlego08.essentials.buttons.vault.ButtonVaultSlotDisable;
+import fr.maxlego08.essentials.buttons.vault.ButtonVaultSellConfirm;
+import fr.maxlego08.essentials.buttons.vault.ButtonVaultSellSelection;
 import fr.maxlego08.essentials.buttons.vault.ButtonVaultSlotItems;
 import fr.maxlego08.essentials.commands.CommandLoader;
 import fr.maxlego08.essentials.commands.ZCommandManager;
@@ -127,6 +131,7 @@ import fr.maxlego08.essentials.zutils.utils.paper.PaperUtils;
 import fr.maxlego08.essentials.zutils.utils.spigot.SpigotUtils;
 import fr.maxlego08.menu.api.ButtonManager;
 import fr.maxlego08.menu.api.InventoryManager;
+import fr.maxlego08.menu.api.MenuPlugin;
 import fr.maxlego08.menu.api.loader.NoneLoader;
 import fr.maxlego08.menu.api.pattern.PatternManager;
 import fr.maxlego08.menu.common.utils.nms.NmsVersion;
@@ -137,6 +142,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.metadata.MetadataValue;
 import org.bukkit.permissions.Permissible;
 import org.bukkit.plugin.ServicePriority;
 
@@ -150,6 +156,7 @@ import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -159,6 +166,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public final class ZEssentialsPlugin extends ZPlugin implements EssentialsPlugin {
 
@@ -207,9 +215,26 @@ public final class ZEssentialsPlugin extends ZPlugin implements EssentialsPlugin
         this.scoreboardManager = new ScoreboardModule(this);
         this.hologramManager = new HologramModule(this);
 
-        this.inventoryManager = this.getProvider(InventoryManager.class);
-        this.buttonManager = this.getProvider(ButtonManager.class);
-        this.patternManager = this.getProvider(PatternManager.class);
+        if (!this.resolveZMenuManagers()) {
+            this.getLogger().warning("zMenu n'est pas encore complètement initialisé; "
+                    + "la fin du chargement de zEssentials est reportée au premier tick.");
+            this.getServer().getScheduler().runTask(this, () -> {
+                if (!this.resolveZMenuManagers()) {
+                    this.getLogger().severe("Impossible d'initialiser zEssentials : les managers zMenu "
+                            + "restent indisponibles après l'activation de tous les plugins.");
+                    this.getServer().getPluginManager().disablePlugin(this);
+                    return;
+                }
+                this.finishEnable();
+            });
+            return;
+        }
+
+        this.finishEnable();
+    }
+
+    /** Termine l'initialisation une fois l'API zMenu réellement disponible. */
+    private void finishEnable() {
         this.registerButtons();
 
         this.moduleManager = new ZModuleManager(this);
@@ -285,7 +310,7 @@ public final class ZEssentialsPlugin extends ZPlugin implements EssentialsPlugin
 
         this.getServer().getServicesManager().register(EssentialsPlugin.class, this, this, ServicePriority.Normal);
 
-        this.registerListener(new InvseeListener());
+        this.registerListener(new InvseeListener(this));
 
         this.generateDocs();
 
@@ -325,6 +350,7 @@ public final class ZEssentialsPlugin extends ZPlugin implements EssentialsPlugin
 
         this.essentialsServer.onDisable();
 
+        PlayerInventoryHolder.unregisterAll();
     }
 
     private void registerButtons() {
@@ -340,6 +366,8 @@ public final class ZEssentialsPlugin extends ZPlugin implements EssentialsPlugin
         this.buttonManager.register(new NoneLoader(this, ButtonMailBoxAdmin.class, "ZESSENTIALS_MAILBOX_ADMIN"));
         this.buttonManager.register(new NoneLoader(this, ButtonVaultSlotDisable.class, "ZESSENTIALS_VAULT_SLOTS_DISABLE"));
         this.buttonManager.register(new NoneLoader(this, ButtonVaultSlotItems.class, "ZESSENTIALS_VAULT_SLOTS_ITEMS"));
+        this.buttonManager.register(new NoneLoader(this, ButtonVaultSellSelection.class, "ZESSENTIALS_VAULT_SELL_SELECTION"));
+        this.buttonManager.register(new NoneLoader(this, ButtonVaultSellConfirm.class, "ZESSENTIALS_VAULT_SELL_CONFIRM"));
         this.buttonManager.register(new NoneLoader(this, ButtonVaultIcon.class, "ZESSENTIALS_VAULT_CHANGE_ICON"));
         this.buttonManager.register(new NoneLoader(this, ButtonVaultRename.class, "ZESSENTIALS_VAULT_CHANGE_NAME"));
         this.buttonManager.register(new ButtonWarpLoader(this));
@@ -352,6 +380,28 @@ public final class ZEssentialsPlugin extends ZPlugin implements EssentialsPlugin
         this.buttonManager.register(new ButtonVaultNoPermissionAdminLoader(this));
         this.buttonManager.register(new ButtonOptionLoader(this));
 
+    }
+
+    /**
+     * Resolves zMenu's managers from Bukkit services first, then directly from
+     * the zMenu API. The fallback is required when the plugins are enabled in
+     * the correct order but the service registrations are not visible yet.
+     */
+    private boolean resolveZMenuManagers() {
+        this.inventoryManager = this.getProvider(InventoryManager.class);
+        this.buttonManager = this.getProvider(ButtonManager.class);
+        this.patternManager = this.getProvider(PatternManager.class);
+
+        if (this.inventoryManager != null && this.buttonManager != null && this.patternManager != null) return true;
+
+        var zMenu = this.getServer().getPluginManager().getPlugin("zMenu");
+        if (zMenu instanceof MenuPlugin menuPlugin && zMenu.isEnabled()) {
+            if (this.inventoryManager == null) this.inventoryManager = menuPlugin.getInventoryManager();
+            if (this.buttonManager == null) this.buttonManager = menuPlugin.getButtonManager();
+            if (this.patternManager == null) this.patternManager = menuPlugin.getPatternManager();
+        }
+
+        return this.inventoryManager != null && this.buttonManager != null && this.patternManager != null;
     }
 
     @Override
@@ -823,6 +873,36 @@ public final class ZEssentialsPlugin extends ZPlugin implements EssentialsPlugin
             }
         }
         return this.wayPointHelper;
+    }
+
+    @Override
+    public boolean isVanished(Player player) {
+        for (MetadataValue metadataValue : player.getMetadata("vanished")) {
+            if (metadataValue.asBoolean()) return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isVanished(UUID uniqueId) {
+        Player player = getServer().getPlayer(uniqueId);
+        if (player != null) return isVanished(player);
+
+        User user = this.getStorageManager().getStorage().getUser(uniqueId);
+        return user != null && user.getOption(Option.VANISH);
+    }
+
+    @Override
+    public boolean isVanishedFor(Player target, Player viewer) {
+        if (target == viewer) return false;
+        if (!isVanished(target)) return false;
+        return !viewer.hasPermission(Permission.ESSENTIALS_VANISH_SEE.asPermission()) &&
+                !viewer.hasPermission(Permission.ESSENTIALS_VANISH.asPermission());
+    }
+
+    @Override
+    public Collection<Player> getVanishedPlayers() {
+        return getServer().getOnlinePlayers().stream().filter(this::isVanished).collect(Collectors.toList());
     }
 
     private void loadHooks() {

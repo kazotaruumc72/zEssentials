@@ -1,4 +1,4 @@
-########################################################################################################################
+﻿########################################################################################################################
 #
 #  ███████╗███████╗░██████╗░██████╗███████╗███╗░░██╗████████╗██╗░█████╗░██╗░░░░░░██████╗
 #  ╚════██║██╔════╝██╔════╝██╔════╝██╔════╝████╗░██║╚══██╔══╝██║██╔══██╗██║░░░░░██╔════╝
@@ -20,6 +20,7 @@
 prefix: "<primary>zEssentials <secondary>• "
 you: "you"
 trash: "&8Trash"
+invsee: "&8Inventory of &7%player%"
 console: "Console"
 expired: "Expired"
 player-not-found: "&f%player% <error>was not found."
@@ -243,7 +244,6 @@ command-tp-cancel-sender: "<error>Cancelled #99E0FFyour teleport request to %pla
 command-tp-cancel-receiver: "&f%player% <error>cancelled their teleport request to you."
 command-world-teleport-self: "<success>You have just been teleported into the world &f%world%<success>."
 command-world-teleport-other: "<success>You just teleported the player &f%player% <success>in the world &f%world%<success>."
-command-random-tp-other: "<success>You just randomly teleported the player &f%player% <success>in the world &f%world%<success>."
 command-tp: "&fYou just teleport to the player #34cfe0%player%&f."
 command-tp-location: "&fYou just teleport to #34cfe0%x%&f, #34cfe0%y%&f, #34cfe0%z%&f."
 command-tp-location-error: "<error>The coordinates are outside of the world."
@@ -252,8 +252,6 @@ command-tp-all: "&fYou just teleported all the players onto you."
 command-tp-self: "&fYou just teleported #34cfe0%player%&f to your position."
 command-back: "&7Returning to previous location."
 command-back-error: "<error>You have no last location. Impossible to go back."
-command-random-tp-error: "<error>No safe location found after multiple attempts, please try again."
-command-random-tp-configuration-not-found: "<error>Impossible to find the random tp configuration for the world &f%world%<error>."
 command-teleport-request-disabled: "<error>The player &f%player%<error> has disabled teleport requests."
 command-tp-toggle-enable: "&7Teleport requests <success>enabled &7for &f%player%<success>."
 command-tp-toggle-disable: "&7Teleport requests <error>disabled &7for &f%player%<error>."
@@ -358,8 +356,6 @@ description-warp-set: "Create a warp"
 description-warp-use: "Teleport to a warp"
 description-warp-del: "Delete a warp"
 description-warp-list: "Show warp list"
-description-tp-random: "Random Teleport in the world"
-description-tp-random-other: "Force a random teleport for a player"
 description-set-home: "Create a home"
 description-del-home: "Delete a home"
 description-del-home-confirm: "Confirm the deletion of a home"
@@ -526,9 +522,6 @@ teleport-move: "<error>You must not move!"
 teleport-damage: "<error>You must not take damage during teleportation."
 teleport-error-location: "<error>Unable to teleport you safely."
 
-# RTP Queue System Messages
-teleport-already-in-queue: "<error>You are already in the teleportation queue!"
-teleport-added-to-queue: "<success>You have been added to the teleportation queue. Position: #0EEA93%position%"
 
 teleport-message:
   type: ACTION
@@ -554,13 +547,6 @@ teleport-success-warp:
   - message: "&7You just teleported to warp #0EEA93%name% &7!"
   - type: ACTION
     message: "&7You just teleported to warp #0EEA93%name% &7!"
-teleport-random-start: "&7Searching for a destination... you must not move."
-teleport-message-random:
-  type: ACTION
-  message: "&7Teleporting in #0EEA93%seconds% &7seconds, you must not move."
-teleport-success-random:
-  type: ACTION
-  message: "#99E0FFYou have just teleported successfully!"
 teleport-message-home:
   - message: "&7Teleporting in #0EEA93%seconds% &7seconds, you must not move."
   - type: ACTION
@@ -1105,3 +1091,14 @@ death-message-player: "#99E0FF%player% &7was slain by #34cfe0%killer% &7using %w
 death-message-mob: "#99E0FF%player% &7was killed by &c%mob%&7."
 death-message-mythic-mob: "#99E0FF%player% &7was slain by <gradient:#ff6600:#ff0000>%mob%</gradient>&7!"
 death-message-fists: "&7fists"
+# Join Rewards
+join-rewards-milestone-winner:
+  - ""
+  - "<gold>★ <yellow>Congratulations <white>%player%<yellow>! You are the <gold>%count%th <yellow>player to join the server!"
+  - "<yellow>You received a special reward!"
+  - ""
+join-rewards-milestone-all:
+  - ""
+  - "<gold>★ <yellow>%player% <white>is the <gold>%count%th <yellow>player to join!"
+  - "<yellow>All online players received a reward!"
+  - ""

@@ -11,6 +11,7 @@ import fr.maxlego08.essentials.api.utils.DynamicCooldown;
 import fr.maxlego08.essentials.storage.ConfigStorage;
 import fr.maxlego08.essentials.zutils.utils.TimerBuilder;
 import fr.maxlego08.essentials.zutils.utils.ZUtils;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Phantom;
@@ -21,6 +22,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -72,6 +74,13 @@ public class PlayerListener extends ZUtils implements Listener {
             if (user.getProtectionDuration() > System.currentTimeMillis()) {
                 event.setCancelled(true);
             }
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onPickupItem(EntityPickupItemEvent event) {
+        if (event.getEntity() instanceof Player player && isVanished(player)) {
+            event.setCancelled(true);
         }
     }
 
@@ -190,10 +199,14 @@ public class PlayerListener extends ZUtils implements Listener {
         if (user != null) user.startCurrentSessionPlayTime();
 
         if (user != null && user.isFirstJoin()) {
-            if (ConfigStorage.firstSpawnLocation != null && ConfigStorage.firstSpawnLocation.isValid()) {
-                this.plugin.getScheduler().teleportAsync(player, ConfigStorage.firstSpawnLocation.getLocation());
-            } else if (ConfigStorage.spawnLocation != null && ConfigStorage.spawnLocation.isValid()) {
-                this.plugin.getScheduler().teleportAsync(player, ConfigStorage.spawnLocation.getLocation());
+            Location firstJoinLoc = ConfigStorage.firstSpawnLocation != null && ConfigStorage.firstSpawnLocation.isValid()
+                    ? ConfigStorage.firstSpawnLocation.getLocation()
+                    : (ConfigStorage.spawnLocation != null && ConfigStorage.spawnLocation.isValid() ? ConfigStorage.spawnLocation.getLocation() : null);
+            if (firstJoinLoc != null) {
+                Location dest = firstJoinLoc;
+                this.plugin.getScheduler().runAtLocationLater(player.getLocation(), wrappedTask -> {
+                    if (player.isOnline()) this.plugin.getScheduler().teleportAsync(player, dest);
+                }, 1);
             }
         }
 

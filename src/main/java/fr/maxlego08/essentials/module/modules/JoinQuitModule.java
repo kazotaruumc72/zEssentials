@@ -41,16 +41,6 @@ public class JoinQuitModule extends ZModule {
         Player player = user.getPlayer();
         if (player == null) return;
 
-        // Check for first join random teleport
-        TeleportationModule teleportModule = plugin.getModuleManager().getModule(TeleportationModule.class);
-        if (teleportModule != null && teleportModule.isEnable() && teleportModule.isEnableFirstJoinRtp()) {
-            this.plugin.getScheduler().runAtLocationLater(player.getLocation(), () -> {
-                if (player.isOnline()) {
-                    teleportModule.performFirstJoinRtp(player);
-                }
-            }, 20); // Delay 1 second after join
-        }
-
         if (!this.allowFirstJoinBroadcast) return;
 
         long totalUsers = this.plugin.getStorageManager().getStorage().totalUsers();

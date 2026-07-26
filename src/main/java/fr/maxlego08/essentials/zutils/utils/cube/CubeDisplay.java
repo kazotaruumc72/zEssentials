@@ -10,7 +10,7 @@ import org.bukkit.entity.TextDisplay;
 import org.bukkit.util.Transformation;
 import org.joml.Vector3f;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 

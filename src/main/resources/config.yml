@@ -172,6 +172,15 @@ smeltable-materials:
 # Default value returned by placeholders when no data is available
 placeholder-empty: "Empty"
 
+# LuckPerms groups (grades) allowed to see the vanish status placeholder.
+# The placeholder %zessentials_user_vanish_status% returns "&aVanish activé" or "&cVanish désactivé"
+# only for players that belong to one of these groups, and an empty value for everyone else.
+# The check is based on the LuckPerms permission "group.<grade>".
+# Leave the list empty to hide the placeholder for everyone.
+vanish-status-grades:
+  - "admin"
+  - "modo"
+
 # Default distance for /near
 near-distance: 50.0
 

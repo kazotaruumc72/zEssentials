@@ -9,7 +9,9 @@ import fr.maxlego08.essentials.api.chat.ChatFormat;
 import fr.maxlego08.essentials.api.chat.ChatPlaceholder;
 import fr.maxlego08.essentials.api.chat.ChatResult;
 import fr.maxlego08.essentials.api.chat.CustomRules;
+import fr.maxlego08.essentials.api.chat.LuckPermsGroupFormat;
 import fr.maxlego08.essentials.api.chat.ShowItem;
+import fr.maxlego08.essentials.hooks.LuckPermsHook;
 import fr.maxlego08.essentials.api.commands.Permission;
 import fr.maxlego08.essentials.api.dto.ChatMessageDTO;
 import fr.maxlego08.essentials.api.event.events.user.UserJoinEvent;
@@ -54,8 +56,11 @@ public class ChatModule extends ZModule {
     private final Pattern urlPattern = Pattern.compile("(https?://[\\w-\\.]+(\\:[0-9]+)?(/[\\w-./?%&=~+#]*)?)", Pattern.CASE_INSENSITIVE);
     private final List<ChatCooldown> chatCooldowns = new ArrayList<>();
     private final List<ChatFormat> chatFormats = new ArrayList<>();
+    private final List<LuckPermsGroupFormat> luckPermsGroupFormats = new ArrayList<>();
     private final List<ChatPlaceholder> chatPlaceholders = new ArrayList<>();
     private final List<CustomRules> customRules = new ArrayList<>();
+    private LuckPermsHook luckPermsHook;
+    private boolean enableLuckPerms;
     private ChatDisplay pingDisplay;
     private String alphanumericRegex;
     private String linkRegex;
@@ -144,6 +149,12 @@ public class ChatModule extends ZModule {
         }
 
         this.customRules.removeIf(CustomRules::isNotValid);
+
+        if (this.enableLuckPerms && Bukkit.getPluginManager().isPluginEnabled("LuckPerms")) {
+            this.luckPermsHook = new LuckPermsHook();
+        } else {
+            this.luckPermsHook = null;
+        }
     }
 
     @EventHandler
@@ -201,7 +212,14 @@ public class ChatModule extends ZModule {
         }
 
         PaperComponent paperComponent = (PaperComponent) this.componentMessage;
-        String chatFormat = papi(getChatFormat(player), player);
+        String rawFormat = getChatFormat(player);
+        if (this.luckPermsHook != null) {
+            rawFormat = rawFormat
+                    .replace("%lp_prefix%", this.luckPermsHook.getPrefix(player))
+                    .replace("%lp_suffix%", this.luckPermsHook.getSuffix(player))
+                    .replace("%lp_group%", this.luckPermsHook.getPrimaryGroup(player));
+        }
+        String chatFormat = papi(rawFormat, player);
 
         TagResolver.Builder builder = TagResolver.builder();
         try {
@@ -273,7 +291,19 @@ public class ChatModule extends ZModule {
     }
 
     private String getChatFormat(Player player) {
-        return this.chatFormats.stream().filter(chatFormat -> player.hasPermission(chatFormat.permission())).sorted(Comparator.comparingInt(ChatFormat::priority).reversed()).map(ChatFormat::format).findFirst().orElse(this.defaultChatFormat);
+        if (this.luckPermsHook != null && !this.luckPermsGroupFormats.isEmpty()) {
+            String group = this.luckPermsHook.getPrimaryGroup(player);
+            Optional<String> groupFormat = this.luckPermsGroupFormats.stream()
+                    .filter(f -> f.group().equalsIgnoreCase(group))
+                    .max(Comparator.comparingInt(LuckPermsGroupFormat::priority))
+                    .map(LuckPermsGroupFormat::format);
+            if (groupFormat.isPresent()) return groupFormat.get();
+        }
+        return this.chatFormats.stream()
+                .filter(chatFormat -> player.hasPermission(chatFormat.permission()))
+                .max(Comparator.comparingInt(ChatFormat::priority))
+                .map(ChatFormat::format)
+                .orElse(this.defaultChatFormat);
     }
 
     private double handleCooldown(User user) {

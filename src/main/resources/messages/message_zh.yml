@@ -1,4 +1,4 @@
-# #######################################################################################################################
+﻿# #######################################################################################################################
 #
 #  ███████╗███████╗░██████╗░██████╗███████╗███╗░░██╗████████╗██╗░█████╗░██╗░░░░░░██████╗
 #  ╚════██║██╔════╝██╔════╝██╔════╝██╔════╝████╗░██║╚══██╔══╝██║██╔══██╗██║░░░░░██╔════╝
@@ -239,7 +239,6 @@ command-tp-cancel-sender: '<error>取消了 #99E0FF您对 %player% 的传送请�
 command-tp-cancel-receiver: '&f%player% <error>取消了他们的传送请求到您。'
 command-world-teleport-self: <success>您刚刚被传送到了世界 &f%world%<success>。
 command-world-teleport-other: <success>您刚刚将玩家 &f%player% <success>传送到了世界 &f%world%<success>。
-command-random-tp-other: <success>你刚刚随机传送了玩家 &f%player% <success>到世界 &f%world%<success>。
 command-tp: '&f您刚刚传送到玩家 #34cfe0%player%&f。'
 command-tp-location: '&f您刚刚传送到 #34cfe0%x%&f, #34cfe0%y%&f, #34cfe0%z%&f。'
 command-tp-location-other: '&f您刚刚将 #34cfe0%player% &f传送到了 #34cfe0%x%&f, #34cfe0%y%&f,
@@ -248,7 +247,6 @@ command-tp-all: '&f您刚刚将所有玩家传送到了您的位置。'
 command-tp-self: '&f您刚刚将 #34cfe0%player%&f 传送到了您的位置。'
 command-back: '&7返回上一个位置。'
 command-back-error: <error>您没有上一个位置。无法返回。
-command-random-tp-error: <error>多次尝试后仍未找到安全位置，请重试。
 
 
 # 首次加入
@@ -348,8 +346,6 @@ description-warp-set: 创建一个传送点
 description-warp-use: 传送到一个传送点
 description-warp-del: 删除一个传送点
 description-warp-list: 显示传送点列表
-description-tp-random: 随机传送到世界中
-description-tp-random-other: 强制玩家随机传送
 description-set-home: 创建一个家
 description-del-home: 删除一个家
 description-del-home-confirm: 确认删除一个家
@@ -1034,7 +1030,6 @@ command-pub:
   message: "&8[&fPUB&8] <white>%player%<dark_gray>: <red>%message%"
   type: WITHOUT_PREFIX
 command-pub-pattern-error: "<error>你的消息包含禁止的字符。"
-command-random-tp-configuration-not-found: "<error>找不到世界 &f%world%<error> 的随机传送配置。"
 command-spawn-first-not-define: "<error>首次出生点不存在，请联系管理员。"
 command-tp-location-error: "<error>坐标超出世界范围。"
 command-vault-delete-slot-empty: "<error>在保管箱 &f%vault%<error> 的槽位 &f%slot%<error> 中找不到玩家 &f%player%<error>。"
@@ -1065,5 +1060,16 @@ mailbox-clear: "<success>你刚刚清空了 &f%player%<success> 的信箱。"
 step-already-exist: "<error>步骤 &f%step% <error>已经开始。"
 step-doesnt-exist: "<error>步骤 &f%step% <error>不存在。"
 step-doesnt-started: "<error>步骤 &f%step% <error>尚未开始。"
-teleport-random-start: "&7正在寻找目的地……请不要移动。"
 worldedit-permission-error: "<error>你不能在这里使用 WorldEdit。"
+
+# Join Rewards
+join-rewards-milestone-winner:
+  - ""
+  - "<gold>★ <yellow>恭喜 <white>%player%<yellow>！您是第 <gold>%count% <yellow>位加入服务器的玩家！"
+  - "<yellow>您获得了特别奖励！"
+  - ""
+join-rewards-milestone-all:
+  - ""
+  - "<gold>★ <yellow>%player% <white>是第 <gold>%count% <yellow>位加入服务器的玩家！"
+  - "<yellow>所有在线玩家均已获得奖励！"
+  - ""
